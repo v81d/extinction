@@ -1,0 +1,138 @@
+# https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing
+
+# Patterns that could negate the score
+-0.5:
+  # Hesitations
+  - '\b(er+|uh+|um+)\b'
+
+  # Slang
+  - '\b(no\s+way|you\s+bet|give\s+me\s+a\s+break|kind\s+of|sort\s+of|a\s+lot\s+of)\b'
+  - '\b(wanna|gonna|gotta|ain[\u2019'']t)\b'
+
+  # Quotation-heavy sections
+  - '["\u201d][^"\u201d]{2,200}["\u201d]'
+
+-0.25:
+  # Parenthetical asides
+  - '\([^)]{3,50}\)'
+
+  # Uncertainty
+  - '\b(maybe|perhaps|sort\s+of|kind\s+of|probably|i\s+guess)\b'
+
+  # Ellipses as three periods rather than one symbol
+  - '\.\.\.'
+
+  # Subjective markers
+  - '\b(i\s+think|i\s+feel|it\s+seems|to\s+me|honestly|i\s+(dis)?agree)\b'
+
+-0.1:
+  # Informal conjunctions (slang)
+  - '\b(idk|idc|imo|ily|ikr|omg|omfg|ofc|lol|lmao|lmfao|rofl|brb|tbh|tbf|btw|fyi|smth|afk|wtf|wth|tf|stfu|gtfo|nvm|nah|yah|ya|ty|thx|tysm|np|idgaf|idfc|idfk|smh|fr|sus|mf|sybau|syfm|bro|bruh|dude|ngl|rn|bcuz|cuz|coz|cos|cus|ur|yo|wya|afaik|idts)\b'
+
+  # Consecutive exclamation/question marks
+  - '[\s]*[!?]{2,}[\s]*'
+
+0.1:
+  # Curly quotes
+  - '[\u201c\u201d]' # double
+  - '[\u2018\u2019]' # single
+
+  # Pure bullet symbols
+  - '\u2022' # bullet
+  - '\u25e6' # white bullet
+
+  # Repetition of certain words and phrases
+  - '\b([\w'']+(?:\s+[\w'']+){3,11})\b(?=.*\b\1\b)'
+
+0.5:
+  # Emojis
+  - '[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F700}-\u{1F77F}\u{1F780}-\u{1F7FF}\u{1F800}-\u{1F8FF}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}]+'
+
+  # Ellipses
+  - '\u2026'
+
+0.75:
+  # Em dashes
+  - '\u2014'
+
+1.25:
+  # En dashes to represent ranges
+  - '\d+(,\d{3})*(\.\d*)?\s*\u2013\s*\d+(,\d{3})*(\.\d*)?'
+
+4:
+  # Superficial analyses
+  - '\b(enhanc|illustrat|ensur|emphasiz|reflect|underscor|showcas|align|contribut|outlin)e?(s|ing|d)'
+
+  # Common disclaimers
+  - '\bmay\s+vary'
+  - '\bprevent\s+confusion'
+
+  # Challenges and future prospects
+  - '\bdespite\s+(its|these)((\s+)?challenges|obstacles|efforts)?'
+  - '\bfaces\s+several\s+(challenges|obstacles)'
+  - '\bchallenges\s+and\s+legacy'
+  - '\bfuture\s+outlook'
+
+  # Ext. to challenges
+  - '\bcontinue(s)?\s+to\b(\s+\w+)'
+
+  # Cautious phrases
+  - '\bit\s+is(\s+a)?\s+widely\s+(accepted|known)\b'
+
+5.5:
+  # Hooks
+  - '\b(div|delv|unlock)e?(s|ing)?(\s+into)?\s+(the|a)\s+(world|realm|nitty-gritty)\s+of\b'
+  - '\bexplor(e|ing)\s+the\s+(best|top)\b'
+
+  # Overuse of "several ..., including:"
+  - '\b(several|many|countless)(\s+\S+){0,}\S+,?\s+including:'
+
+7.5:
+  # Promotional language
+  - '\b(rich|vibrant|diverse)\s+tapestry'
+  - '\b(artistic|cultural|literary|media)\s+landscape'
+  - '\bboasts\s+a'
+  - '\bcontinues\s+to\s+captivate'
+  - '\b(enduring|lasting)\s+legacy'
+  - '\bin\s+the\s+heart\s+of'
+
+  # Negative parallelism
+  - '\bnot\b(\s+\S+){1,10}\s+\b(but|just|it[\u2019'']s|it\s+is)\b'
+
+9.5:
+  # Emphasis on symbolism
+  - '\b(stands|serves)\s+as'
+  - '\ba\s+(testament|reminder)'
+  - '\bplays\s+a\s+(vital|significant|crucial|essential)\s+role'
+  - "\bunderscores|highlights"
+  - '\breflects\s+broader'
+  - '\b(enduring|lasting|profound)\s+impact'
+  - '\bdeeply\s+rooted'
+
+  # More suspicious disclaimers
+  - '\b(important|critical|crucial)\s+to\s+(note|remember|consider|differentiate|evaluate|understand|distinguish|approach)\b'
+  - '\bworth\s+noting\b'
+
+  # Summary phrases
+  - '^(in\s+)?(summary|conclusion)'
+  - '^all\s+in\s+all'
+  - "^ultimately"
+  - "^overall"
+  - '\b(key|important)\s+(deviations|takeaways|ideas)\b'
+
+14:
+  # Knowledge-cutoff disclaimers
+  - '\b(as\s+of|up\s+to)\s+my\s+last\s+(knowledge|training)\s+update'
+  - '\b(not|aren[\u2019'']t|isn[\u2019'']t)\s+widely\s+(documented|available|disclosed)'
+  - '\bbased\s+on\s+available\s+(information|(re)?sources|documentation)'
+
+15:
+  # Prompt refusal
+  - '\bas\s+a(n)?\s+(ai|large)\s+language\s+model'
+
+  # Prompt confirmation
+  # These usually begin with an affirmative word and end with a colon
+  - '^(absolutely|perfect|of\s+course|sure)(!|.|,)\s+here[\u2019'']s(\s+\S+){2,}\S+:$' # e.g., "Absolutely! Here's a well-rounded article about X:"
+
+  # Response footnote
+  - '^if\s+you\s+want,\s+i\s+(can|could)(\s+\S+){2,}\S+(\n.*|\s+){0,2}(\bdo\s+you\s+want)' # e.g., "If you want, I can also make a .... Do you want me to do that?"
