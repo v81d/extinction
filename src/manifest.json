@@ -1,0 +1,27 @@
+{
+  "manifest_version": 3,
+  "name": "ExtinctLLM",
+  "description": "Show an alert on pages containing potentially AI-generated content.",
+  "version": "0.1.0",
+  "permissions": ["scripting"],
+  "action": {
+    "default_popup": "index.html",
+    "default_icon": {
+      "16": "logo_16x16.png",
+      "32": "logo_32x32.png",
+      "48": "logo_48x48.png",
+      "128": "logo_128x128.png"
+    }
+  },
+  "background": {
+    "service_worker": "src/background.js",
+    "scripts": ["src/background.js"]
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["src/content.ts"],
+      "run_at": "document_end"
+    }
+  ]
+}
