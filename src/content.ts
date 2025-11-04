@@ -49,7 +49,7 @@ window.onload = () => {
 
     const results = [
       { Metric: "Corpus Size", Value: `${corpus.length} chars` },
-      { Metric: "Match Map", Value: JSON.stringify(matchMap) },
+      { Metric: "Match Map", Value: matchMap },
       { Metric: "Unscaled Alpha", Value: alpha },
       { Metric: "Raw Score", Value: score },
       {
