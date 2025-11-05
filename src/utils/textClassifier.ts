@@ -4,7 +4,7 @@ const compiledPatterns: Record<number, RegExp[]> = Object.fromEntries(
   Object.entries(patterns as Record<string, string[]>).map(
     ([score, expressions]) => [
       Number(score),
-      expressions.map((regex) => new RegExp(regex, "gimu")),
+      expressions.map((regex) => new RegExp(regex, "gimus")),
     ],
   ),
 );
