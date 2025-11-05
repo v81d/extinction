@@ -63,7 +63,7 @@ window.onload = () => {
 
     if (exceededThreshold) {
       alert(
-        `This page may contain a considerable amount of AI-generated text. The normalized score is ${(normalizedScore * 100).toFixed(2)}%.`,
+        `A considerable amount of this page may contain content written or refined by AI. The normalized score is ${(normalizedScore * 100).toFixed(2)}%.`,
       );
     }
   }
