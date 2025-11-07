@@ -3,6 +3,7 @@ import { fileURLToPath, URL } from "node:url";
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 import vueDevTools from "vite-plugin-vue-devtools";
+import tailwindcss from "@tailwindcss/vite";
 
 import webExtension from "vite-plugin-web-extension";
 import yaml from "@modyfi/vite-plugin-yaml";
@@ -12,6 +13,7 @@ export default defineConfig({
   plugins: [
     vue(),
     vueDevTools(),
+    tailwindcss(),
     webExtension({ manifest: "./src/manifest.json" }),
     yaml(),
   ],

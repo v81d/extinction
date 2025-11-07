@@ -1,4 +1,4 @@
-import patterns from "../data/patterns.yaml";
+import patterns from "@/data/patterns.yaml";
 
 const compiledPatterns: Record<number, RegExp[]> = Object.fromEntries(
   Object.entries(patterns as Record<string, string[]>).map(
