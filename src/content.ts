@@ -1,4 +1,4 @@
-import TextClassifier from "./utils/textClassifier";
+import TextClassifier from "@/utils/textClassifier";
 import { Readability } from "@mozilla/readability";
 
 const textClassifier = new TextClassifier(1024);
@@ -29,6 +29,27 @@ window.onload = () => {
       article.textContent
     ).trim();
 
+    console.group(
+      "%cCorpus Scan Status\n%cfrom %cExtinctLLM",
+      "font-size: 2em;",
+      "font-size: 1em; color: gray;",
+      "font-style: italic;",
+    );
+
+    if (corpus.split(/\s+/).length < 200) {
+      browser.runtime.sendMessage({
+        type: "SET_CLASSIFIER_SCORE",
+        value: null,
+      });
+
+      console.log(
+        "The article is too short to classify accurately. No scan will be initiated.",
+      );
+      console.groupEnd();
+
+      return;
+    }
+
     const [matchMap, alpha]: [Record<number, number>, number] =
       textClassifier.analyze(corpus);
     const score: number = textClassifier.calculateScore(matchMap);
@@ -40,12 +61,10 @@ window.onload = () => {
     );
     const exceededThreshold: boolean = normalizedScore > threshold;
 
-    console.group(
-      "%cCorpus Scan Results\n%cfrom %cExtinctLLM",
-      "font-size: 2em;",
-      "font-size: 1em; color: gray;",
-      "font-style: italic;",
-    );
+    browser.runtime.sendMessage({
+      type: "SET_CLASSIFIER_SCORE",
+      value: normalizedScore,
+    });
 
     const results = [
       { Metric: "Corpus Size", Value: `${corpus.length} chars` },

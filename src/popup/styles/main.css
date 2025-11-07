@@ -1,0 +1,15 @@
+@import "tailwindcss";
+
+:root {
+  --color-popup-background-primary: #212b4f;
+  --color-popup-panel-primary: #435182;
+  --color-popup-text-primary: #aab9ed;
+}
+
+html,
+body,
+#app {
+  @apply p-0 m-0;
+  @apply min-w-3xs max-w-xs;
+  background-color: var(--color-popup-background-primary);
+}
