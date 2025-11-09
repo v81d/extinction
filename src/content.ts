@@ -1,11 +1,12 @@
-import TextClassifier from "./utils/textClassifier";
+import TextClassifier from "@/utils/textClassifier";
 import { Readability } from "@mozilla/readability";
 
 const textClassifier = new TextClassifier(1024);
 const threshold = 0.5;
 
-window.onload = () => {
+function scanDocument() {
   const article = new Readability(document.cloneNode(true) as Document).parse();
+
   /* Should return an object with the following properties (https://github.com/mozilla/readability):
    *
    *   - `title`: article title
@@ -29,27 +30,46 @@ window.onload = () => {
       article.textContent
     ).trim();
 
+    console.group(
+      "%cCorpus Scan Status\n%cfrom %cExtinctLLM",
+      "font-size: 2em;",
+      "font-size: 1em; color: gray;",
+      "font-style: italic;",
+    );
+
+    if (corpus.split(/\s+/).length < 200) {
+      browser.runtime.sendMessage({
+        type: `SET_CLASSIFIER_SCORE_${window.location.hostname}`,
+        value: "ARTICLE_TOO_SHORT",
+      });
+
+      console.log(
+        "The article is too short to classify accurately. No scan will be initiated.",
+      );
+      console.groupEnd();
+
+      return;
+    }
+
     const [matchMap, alpha]: [Record<number, number>, number] =
       textClassifier.analyze(corpus);
     const score: number = textClassifier.calculateScore(matchMap);
     const normalizedScore: number = textClassifier.normalizeScore(
-      corpus,
+      corpus.length,
       score,
       alpha,
       2.25,
     );
     const exceededThreshold: boolean = normalizedScore > threshold;
 
-    console.group(
-      "%cCorpus Scan Results\n%cfrom %cExtinctLLM",
-      "font-size: 2em;",
-      "font-size: 1em; color: gray;",
-      "font-style: italic;",
-    );
+    browser.runtime.sendMessage({
+      type: `SET_CLASSIFIER_SCORE_${window.location.hostname}`,
+      value: normalizedScore,
+    });
 
     const results = [
       { Metric: "Corpus Size", Value: `${corpus.length} chars` },
-      { Metric: "Match Map", Value: JSON.stringify(matchMap) },
+      { Metric: "Match Map", Value: matchMap },
       { Metric: "Unscaled Alpha", Value: alpha },
       { Metric: "Raw Score", Value: score },
       {
@@ -61,10 +81,14 @@ window.onload = () => {
     console.table(results);
     console.groupEnd();
 
-    if (exceededThreshold) {
-      alert(
-        `This page may contain a considerable amount of AI-generated text. The normalized score is ${(normalizedScore * 100).toFixed(2)}%.`,
-      );
-    }
+    // if (exceededThreshold) {
+    //   alert(
+    //     "A considerable amount of this page may contain content written or refined by AI.",
+    //   );
+    // }
   }
+}
+
+window.onload = () => {
+  scanDocument();
 };

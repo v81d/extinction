@@ -6,11 +6,11 @@
   - '\b(er+|uh+|um+)\b'
 
   # Slang
-  - '\b(no\s+way|you\s+bet|give\s+me\s+a\s+break|kind\s+of|sort\s+of|a\s+lot\s+of)\b'
+  - '\b(no\s+way|you\s+bet|give\s+me\s+a\s+break|a\s+lot\s+of)\b'
   - '\b(wanna|gonna|gotta|ain[\u2019'']t)\b'
 
   # Quotation-heavy sections
-  - '["\u201d][^"\u201d]{2,200}["\u201d]'
+  - '["\u201d][^"\u201d]{10,200}["\u201d]'
 
 -0.25:
   # Parenthetical asides
@@ -42,11 +42,11 @@
   - '\u25e6' # white bullet
 
   # Repetition of certain words and phrases
-  - '\b([\w'']+(?:\s+[\w'']+){3,11})\b(?=.*\b\1\b)'
+  - '\b([\w'']+(\s+[\w'']+){3,8})\b(?=.*?\b\1\b)'
 
 0.5:
   # Emojis
-  - '[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F700}-\u{1F77F}\u{1F780}-\u{1F7FF}\u{1F800}-\u{1F8FF}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}]+'
+  - '(\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])'
 
   # Ellipses
   - '\u2026'
@@ -55,16 +55,18 @@
   # Em dashes
   - '\u2014'
 
-1.25:
   # En dashes to represent ranges
   - '\d+(,\d{3})*(\.\d*)?\s*\u2013\s*\d+(,\d{3})*(\.\d*)?'
 
-4:
+3.25:
   # Superficial analyses
-  - '\b(enhanc|illustrat|ensur|emphasiz|reflect|underscor|showcas|align|contribut|outlin)e?(s|ing|d)'
+  - '\b(enhanc|illustrat|ensur|emphasiz|reflect|underscor|showcas|align|contribut|outlin)(e|es|s|ed|ing)\b'
 
-  # Common disclaimers
+  # Common disclaimers (I)
   - '\bmay\s+vary'
+
+4.5:
+  # Common disclaimers (II)
   - '\bprevent\s+confusion'
 
   # Challenges and future prospects
@@ -73,15 +75,12 @@
   - '\bchallenges\s+and\s+legacy'
   - '\bfuture\s+outlook'
 
-  # Ext. to challenges
-  - '\bcontinue(s)?\s+to\b(\s+\w+)'
-
   # Cautious phrases
   - '\bit\s+is(\s+a)?\s+widely\s+(accepted|known)\b'
 
 5.5:
   # Hooks
-  - '\b(div|delv|unlock)e?(s|ing)?(\s+into)?\s+(the|a)\s+(world|realm|nitty-gritty)\s+of\b'
+  - '\b(div|delv|unlock)(e|es|ed|ing)?(\s+into)?\s+(the|a)\s+(world|realm|nitty-gritty)\s+of\b'
   - '\bexplor(e|ing)\s+the\s+(best|top)\b'
 
   # Overuse of "several ..., including:"
@@ -104,7 +103,6 @@
   - '\b(stands|serves)\s+as'
   - '\ba\s+(testament|reminder)'
   - '\bplays\s+a\s+(vital|significant|crucial|essential)\s+role'
-  - "\bunderscores|highlights"
   - '\breflects\s+broader'
   - '\b(enduring|lasting|profound)\s+impact'
   - '\bdeeply\s+rooted'
@@ -114,11 +112,10 @@
   - '\bworth\s+noting\b'
 
   # Summary phrases
-  - '^(in\s+)?(summary|conclusion)'
-  - '^all\s+in\s+all'
-  - "^ultimately"
-  - "^overall"
-  - '\b(key|important)\s+(deviations|takeaways|ideas)\b'
+  - '\bin\s+(summary|conclusion)\b,'
+  - '\ball\s+in\s+all\b,'
+  - '\b(ultimately|overall)\b,'
+  - '\b(key|important)\s+(deviations|takeaways|ideas)'
 
 14:
   # Knowledge-cutoff disclaimers
@@ -132,7 +129,7 @@
 
   # Prompt confirmation
   # These usually begin with an affirmative word and end with a colon
-  - '^(absolutely|perfect|of\s+course|sure)(!|.|,)\s+here[\u2019'']s(\s+\S+){2,}\S+:$' # e.g., "Absolutely! Here's a well-rounded article about X:"
+  - '^(absolutely|perfect|of\s+course|sure)([!.,])\s+here[\u2019'']s(\s+\S+){2,}\S+:$'
 
   # Response footnote
-  - '^if\s+you\s+want,\s+i\s+(can|could)(\s+\S+){2,}\S+(\n.*|\s+){0,2}(\bdo\s+you\s+want)' # e.g., "If you want, I can also make a .... Do you want me to do that?"
+  - '^if\s+you\s+want,\s+i\s+(can|could).{0,100}?\bdo\s+you\s+want'
