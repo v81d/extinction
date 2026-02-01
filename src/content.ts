@@ -94,11 +94,127 @@ async function scanDocument() {
     console.groupEnd();
 
     if (exceededThreshold) {
-      alert(
-        "A considerable amount of this page may contain content written or refined by AI.",
-      );
+      showDetectionAlert(normalizedScore);
     }
   }
+}
+
+// This function creates the warning alert and injects it onto the page
+function showDetectionAlert(confidence: number) {
+  const alertBox: HTMLDivElement = document.createElement("div");
+  alertBox.style.cssText = `
+    all: initial;
+    position: fixed;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    z-index: 2147483647;
+    box-sizing: border-box;
+    max-width: 384px;
+    top: 20px;
+    right: 20px;
+    margin: 0;
+    padding: 20px;
+    font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    font-size: 14px;
+    border: none;
+    border-radius: 12px;
+    background-color: #4f2125;
+    color: #f2e1e1;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  `;
+  document.body.appendChild(alertBox);
+
+  const label: HTMLParagraphElement = document.createElement("p");
+  label.style.cssText = `
+    all: initial;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    font-size: 16px;
+    font-weight: bold;
+    line-height: 1.5;
+    font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";;
+    color: #f2e1e1;
+  `;
+  label.innerHTML = `
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"  
+      fill="currentColor" viewBox="0 0 24 24" style="flex-shrink: 0;">
+      <path d="M11 9h2v6h-2zm0 8h2v2h-2z"></path><path d="M12.87 2.51c-.35-.63-1.4-.63-1.75 0l-9.99 18c-.17.31-.17.69.01.99.18.31.51.49.86.49h20c.35 0 .68-.19.86-.49a1 1 0 0 0 .01-.99zM3.7 20 12 5.06 20.3 20z"></path>
+    </svg>
+    Content Authenticity Warning
+  `;
+  alertBox.appendChild(label);
+
+  const message: HTMLParagraphElement = document.createElement("p");
+  message.style.cssText = `
+    all: initial;
+    margin: 0;
+    padding: 0;
+    font-size: 14px;
+    line-height: 1.5;
+    font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    color: #f2e1e1;
+  `;
+  message.innerHTML = `
+    We are
+    <strong>
+      ${(confidence * 100).toFixed(2)}%
+    </strong>
+    confident this article contains AI-written content. Please verify important information.
+  `;
+  alertBox.appendChild(message);
+
+  const buttonContainer: HTMLDivElement = document.createElement("div");
+  buttonContainer.style.cssText = `
+    display: flex;
+    gap: 8px;
+  `;
+  alertBox.appendChild(buttonContainer);
+
+  const buttonStyles: string = `
+    all: initial;
+    cursor: pointer;
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
+    padding: 8px 16px;
+    font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    font-size: 14px;
+    font-weight: bold;
+    text-align: center;
+    border: none;
+    border-radius: 12px;
+    color: #dbcbcc;
+  `;
+
+  const dismissButton: HTMLButtonElement = document.createElement("button");
+  dismissButton.textContent = "Dismiss";
+  dismissButton.style.cssText = `
+    ${buttonStyles}
+    background-color: #6b3439;
+  `;
+  dismissButton.onmouseenter = () =>
+    (dismissButton.style.backgroundColor = "#7d3f45");
+  dismissButton.onmouseleave = () =>
+    (dismissButton.style.backgroundColor = "#6b3439");
+  dismissButton.onclick = () => alertBox.remove();
+  buttonContainer.appendChild(dismissButton);
+
+  const returnButton: HTMLButtonElement = document.createElement("button");
+  returnButton.textContent = "Return";
+  returnButton.style.cssText = `
+    ${buttonStyles}
+    background-color: #913e44;
+  `;
+  returnButton.onmouseenter = () =>
+    (returnButton.style.backgroundColor = "#a05359");
+  returnButton.onmouseleave = () =>
+    (returnButton.style.backgroundColor = "#913e44");
+  returnButton.onclick = () => window.history.back();
+  buttonContainer.appendChild(returnButton);
 }
 
 window.onload = () => {
