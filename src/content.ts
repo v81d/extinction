@@ -1,10 +1,11 @@
 import TextClassifier from "@/utils/textClassifier";
 import { Readability } from "@mozilla/readability";
+import { getData } from "@/utils/storage";
 
 const textClassifier = new TextClassifier(1024);
 const threshold = 0.5;
 
-function scanDocument() {
+async function scanDocument() {
   const article = new Readability(document.cloneNode(true) as Document).parse();
 
   /* Should return an object with the following properties (https://github.com/mozilla/readability):
@@ -37,9 +38,20 @@ function scanDocument() {
       "font-style: italic;",
     );
 
+    const currentDomain: string | null = window.location.hostname;
+
+    if ((await getData("exceptionsList")).includes(currentDomain)) {
+      console.log(
+        "This article has been whitelisted. No scan will be initiated.",
+      );
+      console.groupEnd();
+
+      return;
+    }
+
     if (corpus.split(/\s+/).length < 200) {
       browser.runtime.sendMessage({
-        type: `SET_CLASSIFIER_SCORE_${window.location.hostname}`,
+        type: `SET_CLASSIFIER_SCORE_${currentDomain}`,
         value: "ARTICLE_TOO_SHORT",
       });
 
@@ -63,7 +75,7 @@ function scanDocument() {
     const exceededThreshold: boolean = normalizedScore > threshold;
 
     browser.runtime.sendMessage({
-      type: `SET_CLASSIFIER_SCORE_${window.location.hostname}`,
+      type: `SET_CLASSIFIER_SCORE_${currentDomain}`,
       value: normalizedScore,
     });
 
@@ -81,11 +93,11 @@ function scanDocument() {
     console.table(results);
     console.groupEnd();
 
-    // if (exceededThreshold) {
-    //   alert(
-    //     "A considerable amount of this page may contain content written or refined by AI.",
-    //   );
-    // }
+    if (exceededThreshold) {
+      alert(
+        "A considerable amount of this page may contain content written or refined by AI.",
+      );
+    }
   }
 }
 
