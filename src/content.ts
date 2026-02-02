@@ -39,11 +39,23 @@ async function scanDocument() {
     );
 
     const currentDomain: string | null = window.location.hostname;
+    const exceptionsList: string[] = await getData("exceptionsList");
 
-    if ((await getData("exceptionsList")).includes(currentDomain)) {
+    if (exceptionsList.includes(currentDomain)) {
       console.log(
-        "This article has been whitelisted. No scan will be initiated.",
+        "This domain has been whitelisted. No scan will be initiated.",
       );
+      console.groupEnd();
+
+      return;
+    }
+
+    if (
+      exceptionsList.includes(
+        window.location.hostname + window.location.pathname,
+      )
+    ) {
+      console.log("This page has been whitelisted. No scan will be initiated.");
       console.groupEnd();
 
       return;
@@ -134,9 +146,9 @@ function showDetectionAlert(confidence: number) {
     margin: 0;
     padding: 0;
     font-size: 16px;
-    font-weight: bold;
+    font-weight: 600;
     line-height: 1.5;
-    font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";;
+    font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
     color: #f2e1e1;
   `;
   label.innerHTML = `
@@ -160,10 +172,15 @@ function showDetectionAlert(confidence: number) {
   `;
   message.innerHTML = `
     We are
-    <strong>
+    <span
+      style="
+        all: unset;
+        font-family: ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+        font-weight: 600;
+      ">
       ${(confidence * 100).toFixed(2)}%
-    </strong>
-    confident this article contains AI-written content. Please verify important information.
+    </span>
+    confident this page contains AI-written content. Please verify important information.
   `;
   alertBox.appendChild(message);
 
@@ -183,7 +200,7 @@ function showDetectionAlert(confidence: number) {
     padding: 8px 16px;
     font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
     font-size: 14px;
-    font-weight: bold;
+    font-weight: 600;
     text-align: center;
     border: none;
     border-radius: 12px;

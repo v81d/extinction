@@ -11,12 +11,18 @@ import { BiRefresh as Refresh } from "vue-icons-plus/bi";
 const articleTooShort = ref<boolean | null>(null);
 const score = ref<number | null>(null);
 const currentDomain = ref<string | null>(null);
+const currentPage = ref<string | null>(null);
 const exceptionsList = ref<string[]>([]);
 
 onMounted(async () => {
   const tabs = await browser.tabs.query({ active: true, currentWindow: true });
   const url: string | null = tabs[0]?.url ?? null;
-  currentDomain.value = url ? new URL(url!).hostname : null;
+
+  if (url) {
+    const u: URL = new URL(url);
+    currentDomain.value = u.hostname;
+    currentPage.value = u.hostname + u.pathname;
+  }
 
   exceptionsList.value = (await getData("exceptionsList")) ?? [];
 
@@ -44,16 +50,21 @@ async function loadScore() {
 }
 
 async function toggleDomainException() {
-  if (!currentDomain.value) return;
+  if (!currentDomain.value || !currentPage.value) return;
   const domain: string = currentDomain.value;
+  const page: string = currentPage.value;
 
   if (exceptionsList.value.includes(domain)) {
-    // Remove from exceptions
+    // Remove domain from exceptions
     exceptionsList.value = exceptionsList.value.filter((d) => d !== domain);
     await loadScore();
-  } else {
-    // Add to exceptions
+  } else if (exceptionsList.value.includes(page)) {
+    // Remove page and add domain to exceptions
+    exceptionsList.value = exceptionsList.value.filter((p) => p !== page);
     exceptionsList.value = [...exceptionsList.value, domain];
+  } else {
+    // Add page to exceptions
+    exceptionsList.value = [...exceptionsList.value, page];
   }
 
   await setData("exceptionsList", [...exceptionsList.value]);
@@ -62,7 +73,7 @@ async function toggleDomainException() {
 
 <template>
   <div class="popup">
-    <header class="popup__header" v-if="currentDomain">
+    <header class="popup__header" v-if="currentDomain && currentPage">
       <div class="header__labels">
         <p class="header__domain-label">
           <span>{{ currentDomain }}</span>
@@ -72,18 +83,22 @@ async function toggleDomainException() {
         <button
           class="action-row__button text-(--color-actionrow-button-text-primary)"
           @click="loadScore"
-          title="Fetch score for this domain"
+          title="Recalculate score"
         >
           <Refresh />
         </button>
         <button
           class="action-row__button"
           @click="toggleDomainException"
-          title="Toggle scans for this domain"
+          title="Toggle scans"
         >
           <ScanOff
             class="text-(--color-actionrow-button-text-red)"
             v-if="exceptionsList.includes(currentDomain)"
+          />
+          <ScanOff
+            class="text-(--color-actionrow-button-text-yellow)"
+            v-else-if="exceptionsList.includes(currentPage)"
           />
           <ScanOn class="text-(--color-actionrow-button-text-green)" v-else />
         </button>
@@ -94,7 +109,9 @@ async function toggleDomainException() {
         class="flex flex-col justify-center items-center text-center gap-2"
         v-if="
           currentDomain &&
+          currentPage &&
           !exceptionsList.includes(currentDomain) &&
+          !exceptionsList.includes(currentPage) &&
           score !== null
         "
       >
@@ -107,6 +124,9 @@ async function toggleDomainException() {
       <p v-else>
         <span v-if="currentDomain && exceptionsList.includes(currentDomain)"
           >Scans are not enabled for this domain.</span
+        >
+        <span v-else-if="currentPage && exceptionsList.includes(currentPage)"
+          >Scans are not enabled for this page.</span
         >
         <span v-else-if="articleTooShort === true"
           >This page is too short to be scanned.</span
