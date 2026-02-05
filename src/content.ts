@@ -121,37 +121,50 @@ async function scanDocument() {
     console.table(results);
     console.groupEnd();
 
-    if (exceededThreshold) {
-      showDetectionAlert(normalizedScore);
-    }
+    if (exceededThreshold) showDetectionAlert(normalizedScore);
   }
 }
 
 // This function creates the warning alert and injects it onto the page
 function showDetectionAlert(confidence: number) {
+  const originalBodyOverflow: string = document.body.style.overflow;
+  document.body.style.overflow = "hidden";
+
+  const background: HTMLDivElement = document.createElement("div");
+  background.style.cssText = `
+    all: initial;
+    position: fixed;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2147483647;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    background-color: rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(24px);
+  `;
+  document.body.appendChild(background);
+
   const alertBox: HTMLDivElement = document.createElement("div");
   alertBox.style.cssText = `
     all: initial;
     position: fixed;
     display: flex;
     flex-direction: column;
-    gap: 16px;
-    z-index: 2147483647;
+    gap: 24px;
     box-sizing: border-box;
-    max-width: 384px;
-    top: 20px;
-    right: 20px;
+    max-width: 800px;
     margin: 0;
-    padding: 20px;
+    padding: 40px;
     font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-    font-size: 14px;
     border: none;
-    border-radius: 12px;
-    background-color: #4f2125;
-    color: #f2e1e1;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    border-radius: 24px;
+    background-color: #212b4f;
+    color: #aab9ed;
   `;
-  document.body.appendChild(alertBox);
+  background.appendChild(alertBox);
 
   const label: HTMLParagraphElement = document.createElement("p");
   label.style.cssText = `
@@ -161,49 +174,52 @@ function showDetectionAlert(confidence: number) {
     gap: 8px;
     margin: 0;
     padding: 0;
-    font-size: 16px;
+    font-size: 24px;
     font-weight: 600;
     line-height: 1.5;
     font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-    color: #f2e1e1;
+    color: #aab9ed;
   `;
   label.innerHTML = `
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"  
       fill="currentColor" viewBox="0 0 24 24" style="flex-shrink: 0;">
       <path d="M11 9h2v6h-2zm0 8h2v2h-2z"></path><path d="M12.87 2.51c-.35-.63-1.4-.63-1.75 0l-9.99 18c-.17.31-.17.69.01.99.18.31.51.49.86.49h20c.35 0 .68-.19.86-.49a1 1 0 0 0 .01-.99zM3.7 20 12 5.06 20.3 20z"></path>
     </svg>
-    Content Authenticity Warning
+    Potential AI Content
   `;
   alertBox.appendChild(label);
 
-  const message: HTMLParagraphElement = document.createElement("p");
+  const message: HTMLDivElement = document.createElement("div");
   message.style.cssText = `
     all: initial;
+    display: flex;
+    flex-direction: column;
     margin: 0;
     padding: 0;
-    font-size: 14px;
+    font-size: 20px;
     line-height: 1.5;
     font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-    color: #f2e1e1;
+    color: #aab9ed;
   `;
   message.innerHTML = `
-    We are
-    <span
-      style="
-        all: unset;
-        font-family: ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
-        font-weight: 600;
-      ">
-      ${(confidence * 100).toFixed(2)}%
-    </span>
-    confident this page contains AI-written content. Please verify important information.
+    <p style="margin-bottom: 20px;">
+      We are
+      <strong>${(confidence * 100).toFixed(2)}%</strong>
+      confident this page contains AI-written content. You can choose to return or proceed anyway. Make sure to verify any important information.
+    </p>
+    <p style="margin: 0;">
+      If you believe this detection is inaccurate, you can
+      <strong>exclude</strong>
+      this page or domain from future scans in the
+      <strong>Extinction menu</strong>.
+    </p>
   `;
   alertBox.appendChild(message);
 
   const buttonContainer: HTMLDivElement = document.createElement("div");
   buttonContainer.style.cssText = `
     display: flex;
-    gap: 8px;
+    gap: 16px;
   `;
   alertBox.appendChild(buttonContainer);
 
@@ -213,39 +229,43 @@ function showDetectionAlert(confidence: number) {
     display: block;
     box-sizing: border-box;
     width: 100%;
-    padding: 8px 16px;
+    padding: 12px 16px;
     font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-    font-size: 14px;
+    font-size: 20px;
     font-weight: 600;
     text-align: center;
     border: none;
-    border-radius: 12px;
-    color: #dbcbcc;
+    border-radius: 24px;
   `;
 
-  const dismissButton: HTMLButtonElement = document.createElement("button");
-  dismissButton.textContent = "Dismiss";
-  dismissButton.style.cssText = `
+  const proceedButton: HTMLButtonElement = document.createElement("button");
+  proceedButton.textContent = "Proceed Anyway";
+  proceedButton.style.cssText = `
     ${buttonStyles}
-    background-color: #6b3439;
+    background-color: #4d5c91;
+    color: #aab9ed;
   `;
-  dismissButton.onmouseenter = () =>
-    (dismissButton.style.backgroundColor = "#7d3f45");
-  dismissButton.onmouseleave = () =>
-    (dismissButton.style.backgroundColor = "#6b3439");
-  dismissButton.onclick = () => alertBox.remove();
-  buttonContainer.appendChild(dismissButton);
+  proceedButton.onmouseenter = () =>
+    (proceedButton.style.backgroundColor = "#6373a8");
+  proceedButton.onmouseleave = () =>
+    (proceedButton.style.backgroundColor = "#4d5c91");
+  proceedButton.onclick = () => {
+    document.body.style.overflow = originalBodyOverflow;
+    background.remove();
+  };
+  buttonContainer.appendChild(proceedButton);
 
   const returnButton: HTMLButtonElement = document.createElement("button");
-  returnButton.textContent = "Return";
+  returnButton.textContent = "Go Back";
   returnButton.style.cssText = `
     ${buttonStyles}
-    background-color: #913e44;
+    background-color: #8997c4;
+    color: #212b4f;
   `;
   returnButton.onmouseenter = () =>
-    (returnButton.style.backgroundColor = "#a05359");
+    (returnButton.style.backgroundColor = "#9ca9d3");
   returnButton.onmouseleave = () =>
-    (returnButton.style.backgroundColor = "#913e44");
+    (returnButton.style.backgroundColor = "#8997c4");
   returnButton.onclick = () => window.history.back();
   buttonContainer.appendChild(returnButton);
 }
