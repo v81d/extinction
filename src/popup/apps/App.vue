@@ -1,3 +1,87 @@
+<template>
+  <div class="flex flex-col items-center w-full h-full bg-(--color-bg-primary)">
+    <header
+      class="flex justify-between items-stretch text-center p-3 w-full bg-(--color-panel-primary)"
+      v-if="currentDomain && currentPage"
+    >
+      <div class="flex justify-start items-center">
+        <p class="whitespace-nowrap overflow-hidden text-ellipsis font-bold">
+          <span>{{ currentDomain }}</span>
+        </p>
+      </div>
+      <div class="flex justify-end items-center gap-3">
+        <button
+          class="cursor-pointer flex justify-center items-center text-center text-(--color-actionrow-button-text-primary) transition-transform active:scale-75"
+          v-tippy="'Reload score'"
+          @click="loadScore"
+        >
+          <Refresh />
+        </button>
+        <button
+          class="cursor-pointer flex justify-center items-center text-center text-(--color-actionrow-button-text-primary) transition-transform active:scale-75"
+          v-tippy="
+            exceptionsList.includes(currentDomain)
+              ? 'Enable scans'
+              : exceptionsList.includes(currentPage)
+                ? 'Disable scans for page'
+                : 'Disable scans for domain'
+          "
+          @click="toggleDomainException"
+        >
+          <ScanOff
+            class="text-(--color-actionrow-button-text-red)"
+            v-if="exceptionsList.includes(currentDomain)"
+          />
+          <ScanOff
+            class="text-(--color-actionrow-button-text-yellow)"
+            v-else-if="exceptionsList.includes(currentPage)"
+          />
+          <ScanOn class="text-(--color-actionrow-button-text-green)" v-else />
+        </button>
+      </div>
+    </header>
+    <section
+      class="flex flex-col justify-center items-center text-center p-10 w-full"
+    >
+      <div
+        class="flex flex-col justify-center items-center text-center gap-2"
+        v-if="
+          currentDomain &&
+          currentPage &&
+          !exceptionsList.includes(currentDomain) &&
+          !exceptionsList.includes(currentPage) &&
+          score !== null
+        "
+      >
+        <p>We are</p>
+        <p class="text-3xl font-mono font-bold">
+          {{ (score * 100).toFixed(2) }}%
+        </p>
+        <p>confident that this page contains AI-generated content.</p>
+      </div>
+      <p v-else>
+        <span v-if="currentDomain && exceptionsList.includes(currentDomain)"
+          >Scans are not enabled for this domain.</span
+        >
+        <span v-else-if="currentPage && exceptionsList.includes(currentPage)"
+          >Scans are not enabled for this page.</span
+        >
+        <span v-else-if="articleTooShort === true"
+          >This page is too short to be scanned.</span
+        >
+        <span v-else>No score is currently available for this page.</span>
+      </p>
+    </section>
+    <footer
+      class="flex justify-center items-center p-3 w-full text-center bg-(--color-panel-primary)"
+    >
+      <p class="whitespace-nowrap overflow-hidden text-ellipsis">
+        Information is subject to errors.
+      </p>
+    </footer>
+  </div>
+</template>
+
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 import { setData, getData } from "@/utils/storage";
@@ -7,6 +91,9 @@ import {
   AiOutlineSecurityScan as ScanOff,
 } from "vue-icons-plus/ai";
 import { BiRefresh as Refresh } from "vue-icons-plus/bi";
+
+import { directive as VTippy } from "vue-tippy";
+import "tippy.js/dist/tippy.css";
 
 const articleTooShort = ref<boolean | null>(null);
 const score = ref<number | null>(null);
@@ -71,79 +158,20 @@ async function toggleDomainException() {
 }
 </script>
 
-<template>
-  <div class="popup">
-    <header class="popup__header" v-if="currentDomain && currentPage">
-      <div class="header__labels">
-        <p class="header__domain-label">
-          <span>{{ currentDomain }}</span>
-        </p>
-      </div>
-      <div class="header__action-row">
-        <button
-          class="action-row__button text-(--color-actionrow-button-text-primary)"
-          @click="loadScore"
-          title="Recalculate score"
-        >
-          <Refresh />
-        </button>
-        <button
-          class="action-row__button"
-          @click="toggleDomainException"
-          title="Toggle scans"
-        >
-          <ScanOff
-            class="text-(--color-actionrow-button-text-red)"
-            v-if="exceptionsList.includes(currentDomain)"
-          />
-          <ScanOff
-            class="text-(--color-actionrow-button-text-yellow)"
-            v-else-if="exceptionsList.includes(currentPage)"
-          />
-          <ScanOn class="text-(--color-actionrow-button-text-green)" v-else />
-        </button>
-      </div>
-    </header>
-    <section class="popup__page-stats">
-      <div
-        class="flex flex-col justify-center items-center text-center gap-2"
-        v-if="
-          currentDomain &&
-          currentPage &&
-          !exceptionsList.includes(currentDomain) &&
-          !exceptionsList.includes(currentPage) &&
-          score !== null
-        "
-      >
-        <p>We are</p>
-        <p class="text-3xl font-mono font-bold">
-          {{ (score * 100).toFixed(2) }}%
-        </p>
-        <p>confident that this page contains AI-generated content.</p>
-      </div>
-      <p v-else>
-        <span v-if="currentDomain && exceptionsList.includes(currentDomain)"
-          >Scans are not enabled for this domain.</span
-        >
-        <span v-else-if="currentPage && exceptionsList.includes(currentPage)"
-          >Scans are not enabled for this page.</span
-        >
-        <span v-else-if="articleTooShort === true"
-          >This page is too short to be scanned.</span
-        >
-        <span v-else>No score is currently available for this page.</span>
-      </p>
-    </section>
-    <footer class="popup__footer">
-      <p class="footer__disclaimer-label">Information is subject to errors.</p>
-    </footer>
-  </div>
-</template>
-
 <style scoped>
-@reference "tailwindcss";
+* {
+  --color-bg-primary: #212b4f;
 
-/* Defaults */
+  --color-panel-primary: #435182;
+
+  --color-actionrow-button-text-primary: #8997c4;
+  --color-actionrow-button-text-green: #89c4a5;
+  --color-actionrow-button-text-yellow: #c4bb89;
+  --color-actionrow-button-text-red: #c49089;
+
+  --color-text-primary: #aab9ed;
+}
+
 h1,
 h2,
 h3,
@@ -154,72 +182,6 @@ p,
 span,
 a,
 button {
-  @apply text-(--color-text-primary);
-}
-
-/* Application */
-.popup {
-  @apply flex flex-col;
-  @apply items-center;
-  @apply w-full h-full;
-  @apply bg-(--color-bg-primary);
-}
-
-/* Popup header and footer */
-.popup__header,
-.popup__footer {
-  @apply flex;
-  @apply text-center;
-  @apply p-3 w-full;
-  @apply bg-(--color-panel-primary);
-}
-
-.popup__header {
-  @apply justify-between items-stretch;
-}
-
-.popup__footer {
-  @apply justify-center items-center;
-}
-
-/* Header labels */
-.header__labels {
-  @apply flex;
-  @apply justify-start items-center;
-}
-
-/* Header action row */
-.header__action-row {
-  @apply flex;
-  @apply justify-end items-center;
-  @apply gap-3;
-}
-
-.action-row__button {
-  @apply cursor-pointer;
-  @apply flex;
-  @apply justify-center items-center text-center;
-  @apply text-(--color-actionrow-button-text-primary);
-
-  @apply transition-transform;
-
-  @apply active:scale-75;
-}
-
-/* Header and footer labels */
-.header__domain-label,
-.footer__disclaimer-label {
-  @apply whitespace-nowrap overflow-hidden text-ellipsis;
-}
-
-.header__domain-label {
-  @apply font-bold;
-}
-
-/* Scan information */
-.popup__page-stats {
-  @apply flex flex-col;
-  @apply justify-center items-center text-center;
-  @apply p-10 w-full;
+  color: var(--color-text-primary);
 }
 </style>
