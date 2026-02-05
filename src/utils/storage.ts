@@ -1,3 +1,5 @@
+import browser from "webextension-polyfill";
+
 export async function setData(key: string, value: any): Promise<void> {
   await browser.storage.local.set({ [key]: value });
 }

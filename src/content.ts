@@ -1,6 +1,7 @@
-import TextClassifier from "@/utils/textClassifier";
+import browser from "webextension-polyfill";
 import { Readability } from "@mozilla/readability";
 import { setData, getData } from "@/utils/storage";
+import TextClassifier from "@/utils/textClassifier";
 
 const chunkSize: number = 1024;
 const wLex: number = 0.7;

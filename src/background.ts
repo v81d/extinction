@@ -1,3 +1,5 @@
+import browser from "webextension-polyfill";
+
 let messages: Record<string, any> = {};
 
 browser.runtime.onMessage.addListener(

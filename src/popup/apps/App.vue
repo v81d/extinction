@@ -83,6 +83,7 @@
 </template>
 
 <script setup lang="ts">
+import browser from "webextension-polyfill";
 import { ref, onMounted } from "vue";
 import { setData, getData } from "@/utils/storage";
 
