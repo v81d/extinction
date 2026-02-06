@@ -1,7 +1,8 @@
 {
-  "manifest_version": 3,
+  "{{chrome}}.manifest_version": 3,
+  "{{firefox}}.manifest_version": 2,
   "name": "Extinction",
-  "description": "Show an alert on pages containing potentially AI-generated content.",
+  "description": "An ultra-lightweight AI content blocker extension.",
   "version": "0.0.0",
   "permissions": ["scripting", "storage"],
   "action": {
@@ -14,8 +15,9 @@
     }
   },
   "background": {
-    "service_worker": "src/background.js",
-    "scripts": ["src/background.js"]
+    "{{chrome}}.service_worker": "src/background.js",
+    "{{chrome}}.type": "module",
+    "{{firefox}}.scripts": ["src/background.js"]
   },
   "content_scripts": [
     {

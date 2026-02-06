@@ -14,7 +14,10 @@ export default defineConfig({
     vue(),
     vueDevTools(),
     tailwindcss(),
-    webExtension({ manifest: "./src/manifest.json" }),
+    webExtension({
+      manifest: "./src/manifest.json",
+      browser: process.env.TARGET || "chrome",
+    }),
     yaml(),
   ],
   resolve: {
