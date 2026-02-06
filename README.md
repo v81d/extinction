@@ -143,3 +143,28 @@ To install Extinction on a Firefox-based browser, you should follow the guide:
 
 > [!IMPORTANT]  
 > Temporary add-ons in Firefox disappear after the session ends or after the browser restarts.
+
+## Contributing
+
+### Reporting Issues
+
+To report an issue or bug, visit Extinction's [issue tracker](https://github.com/extinctionteam/extinction/issues) on GitHub.
+
+### Pull Requests
+
+To push your features or fixes into this official repository:
+
+1. Fork the repository.
+2. Create a feature branch (`git checkout -b feature/my-feature`) or a fix branch (`git checkout -b fix/my-fix`).
+3. Commit your changes (`git commit -m "feat: add new feature"`). **Please follow the [Conventional Commits](https://www.conventionalcommits.org) guideline when doing so!**
+4. Push the branch (`git push origin feature/my-feature`).
+5. Open a pull request with `contrib` as the base branch. Make sure to create a detailed title and description of your change.
+
+Please follow the [GitHub flow](https://guides.github.com/introduction/flow) and Observatory's [Code of Conduct](CODE_OF_CONDUCT.md) when submitting a pull request.
+
+## License
+
+Extinction is free software distributed under the **GNU General Public License, version 3.0 or later (GPL-3.0+).**
+
+You are free to use, modify, and share the software under the terms of the GPL.
+For full details, see the [GNU General Public License v3.0](https://www.gnu.org/licenses/gpl-3.0.html).
