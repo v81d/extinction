@@ -144,7 +144,7 @@ function showDetectionAlert(confidence: number) {
     top: 0;
     left: 0;
     background-color: rgba(0, 0, 0, 0.2);
-    backdrop-filter: blur(24px);
+    backdrop-filter: blur(36px);
   `;
   document.body.appendChild(background);
 
@@ -154,9 +154,10 @@ function showDetectionAlert(confidence: number) {
     position: fixed;
     display: flex;
     flex-direction: column;
+    justify-content: center;
     gap: 24px;
     box-sizing: border-box;
-    max-width: 800px;
+    width: 800px;
     margin: 0;
     padding: 40px;
     font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
@@ -165,6 +166,21 @@ function showDetectionAlert(confidence: number) {
     background-color: #212b4f;
     color: #aab9ed;
   `;
+
+  function adjustAlertBoxSize() {
+    if (window.innerWidth <= 800) {
+      alertBox.style.width = "100%";
+      alertBox.style.height = "100%";
+      alertBox.style.borderRadius = "0";
+    } else {
+      alertBox.style.width = "800px";
+      alertBox.style.height = "auto";
+      alertBox.style.borderRadius = "24px";
+    }
+  }
+
+  adjustAlertBoxSize();
+  window.addEventListener("resize", adjustAlertBoxSize);
   background.appendChild(alertBox);
 
   const label: HTMLParagraphElement = document.createElement("p");
@@ -220,6 +236,7 @@ function showDetectionAlert(confidence: number) {
   const buttonContainer: HTMLDivElement = document.createElement("div");
   buttonContainer.style.cssText = `
     display: flex;
+    flex-wrap: wrap;
     gap: 16px;
   `;
   alertBox.appendChild(buttonContainer);
@@ -228,9 +245,10 @@ function showDetectionAlert(confidence: number) {
     all: initial;
     cursor: pointer;
     display: block;
+    flex: 1;
     box-sizing: border-box;
     width: 100%;
-    padding: 12px 16px;
+    padding: 12px 48px;
     font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
     font-size: 20px;
     font-weight: 600;
