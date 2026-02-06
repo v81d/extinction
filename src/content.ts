@@ -74,7 +74,7 @@ async function scanDocument() {
     }
 
     if (corpus.split(/\s+/).length < 200) {
-      browser.runtime.sendMessage({
+      await browser.runtime.sendMessage({
         type: `SET_CLASSIFIER_SCORE_${currentDomain}`,
         value: "ARTICLE_TOO_SHORT",
       });
@@ -102,7 +102,7 @@ async function scanDocument() {
     );
     const exceededThreshold: boolean = normalizedScore > threshold;
 
-    browser.runtime.sendMessage({
+    await browser.runtime.sendMessage({
       type: `SET_CLASSIFIER_SCORE_${currentDomain}`,
       value: normalizedScore,
     });
@@ -271,6 +271,4 @@ function showDetectionAlert(confidence: number) {
   buttonContainer.appendChild(returnButton);
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  scanDocument();
-});
+window.addEventListener("load", scanDocument);

@@ -1,21 +1,21 @@
 import browser from "webextension-polyfill";
-
-let messages: Record<string, any> = {};
+import { setData, getData } from "@/utils/storage";
 
 browser.runtime.onMessage.addListener(
-  (message: any): Promise<{ value: any }> | void => {
+  async (message: any): Promise<{ value: any } | void> => {
     if (!message.type || typeof message.type !== "string") return;
 
     const key = message.type.replace(/^GET_|^SET_/, "");
 
     // Get a value
     if (message.type.startsWith("GET_")) {
-      return Promise.resolve({
-        value: messages[key] ?? "N/A",
-      });
+      const value = await getData(key);
+      return { value: value ?? null };
     }
 
     // Set a value
-    if (message.type.startsWith("SET_")) messages[key] = message.value;
+    if (message.type.startsWith("SET_")) {
+      await setData(key, message.value);
+    }
   },
 );

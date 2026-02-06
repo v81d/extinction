@@ -1,10 +1,9 @@
 {
-  "{{chrome}}.manifest_version": 3,
-  "{{firefox}}.manifest_version": 2,
+  "manifest_version": 3,
   "name": "Extinction",
   "description": "An ultra-lightweight AI content blocker extension.",
   "version": "0.0.0",
-  "permissions": ["scripting", "storage"],
+  "permissions": ["activeTab", "scripting", "storage"],
   "action": {
     "default_popup": "src/popup/index.html",
     "default_icon": {

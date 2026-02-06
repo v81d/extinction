@@ -1,5 +1,7 @@
 <template>
-  <div class="flex flex-col items-center w-full h-full bg-(--color-bg-primary)">
+  <div
+    class="flex flex-col items-center w-full h-full text-base bg-(--color-bg-primary)"
+  >
     <header
       class="flex justify-between items-stretch text-center p-3 w-full bg-(--color-panel-primary)"
       v-if="currentDomain && currentPage"
@@ -69,7 +71,7 @@
         <span v-else-if="articleTooShort === true"
           >This page is too short to be scanned.</span
         >
-        <span v-else>No score is currently available for this page.</span>
+        <span v-else>No score is available for this page.</span>
       </p>
     </section>
     <footer
@@ -128,12 +130,14 @@ async function loadScore() {
       type: `GET_CLASSIFIER_SCORE_${currentDomain.value}`,
     })) as { value: any };
 
-    if (response.value === "ARTICLE_TOO_SHORT") {
-      articleTooShort.value = true;
-    } else articleTooShort.value = false;
+    articleTooShort.value = response.value === "ARTICLE_TOO_SHORT";
 
-    const value: number = Math.min(1, Math.max(0, Number(response.value)));
-    score.value = isNaN(value) ? null : value;
+    score.value =
+      !response.value ||
+      isNaN(response.value) ||
+      response.value === "ARTICLE_TOO_SHORT"
+        ? null
+        : Math.min(1, Math.max(0, Number(response.value)));
   }
 }
 
@@ -173,15 +177,8 @@ async function toggleDomainException() {
   --color-text-primary: #aab9ed;
 }
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6,
 p,
 span,
-a,
 button {
   color: var(--color-text-primary);
 }
