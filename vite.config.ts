@@ -25,4 +25,7 @@ export default defineConfig({
       "@": fileURLToPath(new URL("./src", import.meta.url)),
     },
   },
+  build: {
+    outDir: "dist_" + (process.env.TARGET || "chrome"),
+  },
 });
