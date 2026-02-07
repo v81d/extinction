@@ -131,41 +131,46 @@ function showDetectionAlert(confidence: number) {
   const originalBodyOverflow: string = document.body.style.overflow;
   document.body.style.overflow = "hidden";
 
+  const wrapper: HTMLDivElement = document.createElement("div");
+  wrapper.style.all = "unset";
+  wrapper.style.position = "fixed";
+  wrapper.style.top = "0";
+  wrapper.style.left = "0";
+  wrapper.style.width = "100%";
+  wrapper.style.height = "100%";
+  wrapper.style.zIndex = "2147483647";
+  wrapper.style.lineHeight = "1.5";
+  wrapper.style.fontFamily =
+    "ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'";
+  const shadow = wrapper.attachShadow({ mode: "closed" });
+  document.body.appendChild(wrapper);
+
   const background: HTMLDivElement = document.createElement("div");
-  background.style.cssText = `
-    all: initial;
-    position: fixed;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 2147483647;
-    width: 100%;
-    height: 100%;
-    top: 0;
-    left: 0;
-    background-color: rgba(0, 0, 0, 0.2);
-    backdrop-filter: blur(36px);
-  `;
-  document.body.appendChild(background);
+  background.style.position = "fixed";
+  background.style.display = "flex";
+  background.style.justifyContent = "center";
+  background.style.alignItems = "center";
+  background.style.width = "100%";
+  background.style.height = "100%";
+  background.style.top = "0";
+  background.style.left = "0";
+  background.style.backgroundColor = "rgba(0, 0, 0, 0.4)";
+  background.style.backdropFilter = "blur(36px)";
+  shadow.appendChild(background);
 
   const alertBox: HTMLDivElement = document.createElement("div");
-  alertBox.style.cssText = `
-    all: initial;
-    position: fixed;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: 24px;
-    box-sizing: border-box;
-    width: 800px;
-    margin: 0;
-    padding: 40px;
-    font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-    border: none;
-    border-radius: 24px;
-    background-color: #212b4f;
-    color: #aab9ed;
-  `;
+  alertBox.style.position = "fixed";
+  alertBox.style.display = "flex";
+  alertBox.style.flexDirection = "column";
+  alertBox.style.justifyContent = "center";
+  alertBox.style.gap = "24px";
+  alertBox.style.boxSizing = "border-box";
+  alertBox.style.width = "800px";
+  alertBox.style.margin = "0";
+  alertBox.style.padding = "40px";
+  alertBox.style.borderRadius = "24px";
+  alertBox.style.backgroundColor = "#212b4f";
+  alertBox.style.color = "#aab9ed";
 
   function adjustAlertBoxSize() {
     if (window.innerWidth <= 800) {
@@ -184,19 +189,17 @@ function showDetectionAlert(confidence: number) {
   background.appendChild(alertBox);
 
   const label: HTMLParagraphElement = document.createElement("p");
-  label.style.cssText = `
-    all: initial;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin: 0;
-    padding: 0;
-    font-size: 24px;
-    font-weight: 600;
-    line-height: 1.5;
-    font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-    color: #aab9ed;
-  `;
+  label.style.display = "flex";
+  label.style.alignItems = "center";
+  label.style.gap = "8px";
+  label.style.display = "flex";
+  label.style.alignItems = "center";
+  label.style.gap = "8px";
+  label.style.margin = "0";
+  label.style.padding = "0";
+  label.style.fontSize = "24px";
+  label.style.fontWeight = "600";
+  label.style.color = "#aab9ed";
   label.innerHTML = `
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"  
       fill="currentColor" viewBox="0 0 24 24" style="flex-shrink: 0;">
@@ -207,19 +210,15 @@ function showDetectionAlert(confidence: number) {
   alertBox.appendChild(label);
 
   const message: HTMLDivElement = document.createElement("div");
-  message.style.cssText = `
-    all: initial;
-    display: flex;
-    flex-direction: column;
-    margin: 0;
-    padding: 0;
-    font-size: 20px;
-    line-height: 1.5;
-    font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-    color: #aab9ed;
-  `;
+  message.style.display = "flex";
+  message.style.flexDirection = "column";
+  message.style.gap = "20px";
+  message.style.margin = "0";
+  message.style.padding = "0";
+  message.style.fontSize = "20px";
+  message.style.color = "#aab9ed";
   message.innerHTML = `
-    <p style="margin-bottom: 20px;">
+    <p style="margin: 0;">
       We are
       <strong>${(confidence * 100).toFixed(2)}%</strong>
       confident this page contains AI-written content. You can choose to return or proceed anyway. Make sure to verify any important information.
@@ -234,22 +233,18 @@ function showDetectionAlert(confidence: number) {
   alertBox.appendChild(message);
 
   const buttonContainer: HTMLDivElement = document.createElement("div");
-  buttonContainer.style.cssText = `
-    display: flex;
-    flex-wrap: wrap;
-    gap: 16px;
-  `;
+  buttonContainer.style.display = "flex";
+  buttonContainer.style.flexWrap = "wrap";
+  buttonContainer.style.gap = "16px";
   alertBox.appendChild(buttonContainer);
 
   const buttonStyles: string = `
-    all: initial;
     cursor: pointer;
     display: block;
     flex: 1;
     box-sizing: border-box;
     width: 100%;
     padding: 12px 48px;
-    font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
     font-size: 20px;
     font-weight: 600;
     text-align: center;
@@ -270,7 +265,7 @@ function showDetectionAlert(confidence: number) {
     (proceedButton.style.backgroundColor = "#4d5c91");
   proceedButton.onclick = () => {
     document.body.style.overflow = originalBodyOverflow;
-    background.remove();
+    wrapper.remove();
   };
   buttonContainer.appendChild(proceedButton);
 
@@ -289,4 +284,27 @@ function showDetectionAlert(confidence: number) {
   buttonContainer.appendChild(returnButton);
 }
 
-window.addEventListener("load", scanDocument);
+function waitForDOMReady(): Promise<void> {
+  return new Promise((resolve) => {
+    if (
+      document.readyState === "complete" ||
+      document.readyState === "interactive"
+    ) {
+      resolve();
+    } else {
+      document.addEventListener("DOMContentLoaded", () => resolve(), {
+        once: true,
+      });
+    }
+  });
+}
+
+let lastURL: string = location.href;
+setInterval(() => {
+  if (location.href !== lastURL) {
+    lastURL = location.href;
+    scanDocument();
+  }
+}, 500); // detect URL changes every 500 ms
+
+waitForDOMReady().then(scanDocument);
