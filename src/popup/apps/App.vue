@@ -13,14 +13,14 @@
       </div>
       <div class="flex justify-end items-center gap-3">
         <button
-          class="cursor-pointer flex justify-center items-center text-center text-(--color-actionrow-button-text-primary) transition-transform active:scale-75"
+          class="cursor-pointer flex justify-center items-center text-center text-(--color-actionrow-button-text-primary) transition-transform active:scale-90"
           v-tippy="'Reload score'"
           @click="loadScore"
         >
           <Refresh />
         </button>
         <button
-          class="cursor-pointer flex justify-center items-center text-center text-(--color-actionrow-button-text-primary) transition-transform active:scale-75"
+          class="cursor-pointer flex justify-center items-center text-center text-(--color-actionrow-button-text-primary) transition-transform active:scale-90"
           v-tippy="
             exceptionsList.includes(currentDomain)
               ? 'Enable scans'

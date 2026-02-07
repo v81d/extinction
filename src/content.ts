@@ -156,6 +156,7 @@ function showDetectionAlert(confidence: number) {
   background.style.left = "0";
   background.style.backgroundColor = "rgba(0, 0, 0, 0.4)";
   background.style.backdropFilter = "blur(36px)";
+  background.style.transition = "opacity 0.5s ease, backdrop-filter 0.5s ease";
   shadow.appendChild(background);
 
   const alertBox: HTMLDivElement = document.createElement("div");
@@ -250,7 +251,16 @@ function showDetectionAlert(confidence: number) {
     text-align: center;
     border: none;
     border-radius: 24px;
+    transition: transform 0.1s ease;
   `;
+
+  const press = (button: HTMLButtonElement) => {
+    button.style.transform = "scale(0.9)";
+  };
+
+  const release = (button: HTMLButtonElement) => {
+    button.style.transform = "scale(1)";
+  };
 
   const proceedButton: HTMLButtonElement = document.createElement("button");
   proceedButton.textContent = "Proceed Anyway";
@@ -259,14 +269,15 @@ function showDetectionAlert(confidence: number) {
     background-color: #4d5c91;
     color: #aab9ed;
   `;
-  proceedButton.onmouseenter = () =>
-    (proceedButton.style.backgroundColor = "#6373a8");
-  proceedButton.onmouseleave = () =>
-    (proceedButton.style.backgroundColor = "#4d5c91");
-  proceedButton.onclick = () => {
+  proceedButton.addEventListener("pointerdown", () => press(proceedButton));
+  proceedButton.addEventListener("pointerup", () => release(proceedButton));
+  proceedButton.addEventListener("pointercancel", () => release(proceedButton));
+  proceedButton.addEventListener("pointerleave", () => release(proceedButton));
+  proceedButton.addEventListener("click", () => {
     document.body.style.overflow = originalBodyOverflow;
-    wrapper.remove();
-  };
+    background.style.opacity = "0";
+    setTimeout(() => wrapper.remove(), 500);
+  });
   buttonContainer.appendChild(proceedButton);
 
   const returnButton: HTMLButtonElement = document.createElement("button");
@@ -276,11 +287,11 @@ function showDetectionAlert(confidence: number) {
     background-color: #8997c4;
     color: #212b4f;
   `;
-  returnButton.onmouseenter = () =>
-    (returnButton.style.backgroundColor = "#9ca9d3");
-  returnButton.onmouseleave = () =>
-    (returnButton.style.backgroundColor = "#8997c4");
-  returnButton.onclick = () => window.history.back();
+  returnButton.addEventListener("pointerdown", () => press(returnButton));
+  returnButton.addEventListener("pointerup", () => release(returnButton));
+  returnButton.addEventListener("pointercancel", () => release(returnButton));
+  returnButton.addEventListener("pointerleave", () => release(returnButton));
+  returnButton.addEventListener("click", () => window.history.back());
   buttonContainer.appendChild(returnButton);
 }
 
