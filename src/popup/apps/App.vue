@@ -25,8 +25,8 @@
             exceptionsList.includes(currentDomain)
               ? 'Enable scans'
               : exceptionsList.includes(currentPage)
-                ? 'Disable scans for page'
-                : 'Disable scans for domain'
+                ? 'Disable scans for domain'
+                : 'Disable scans for page'
           "
           @click="toggleDomainException"
         >
