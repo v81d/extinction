@@ -222,7 +222,7 @@ function showDetectionAlert(confidence: number) {
     <p style="margin: 0;">
       We are
       <strong>${(confidence * 100).toFixed(2)}%</strong>
-      confident this page contains AI-written content. You can choose to return or proceed anyway. Make sure to verify any important information.
+      confident this page contains machine-generated content. You can choose to return or proceed anyway. Make sure to verify any important information.
     </p>
     <p style="margin: 0;">
       If you believe this detection is inaccurate, you can
