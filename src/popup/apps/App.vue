@@ -59,7 +59,7 @@
         <p class="text-3xl font-mono font-bold">
           {{ (score * 100).toFixed(2) }}%
         </p>
-        <p>confident that this page contains AI-generated content.</p>
+        <p>confident this page contains machine-generated content.</p>
       </div>
       <p v-else>
         <span v-if="currentDomain && exceptionsList.includes(currentDomain)"
