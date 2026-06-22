@@ -173,20 +173,6 @@ function showDetectionAlert(confidence: number) {
   alertBox.style.backgroundColor = "#212b4f";
   alertBox.style.color = "#aab9ed";
 
-  function adjustAlertBoxSize() {
-    if (window.innerWidth <= 800) {
-      alertBox.style.width = "100%";
-      alertBox.style.height = "100%";
-      alertBox.style.borderRadius = "0";
-    } else {
-      alertBox.style.width = "800px";
-      alertBox.style.height = "auto";
-      alertBox.style.borderRadius = "24px";
-    }
-  }
-
-  adjustAlertBoxSize();
-  window.addEventListener("resize", adjustAlertBoxSize);
   background.appendChild(alertBox);
 
   const label: HTMLParagraphElement = document.createElement("p");
@@ -235,7 +221,6 @@ function showDetectionAlert(confidence: number) {
 
   const buttonContainer: HTMLDivElement = document.createElement("div");
   buttonContainer.style.display = "flex";
-  buttonContainer.style.flexWrap = "wrap";
   buttonContainer.style.gap = "16px";
   alertBox.appendChild(buttonContainer);
 
@@ -255,14 +240,6 @@ function showDetectionAlert(confidence: number) {
     transition: transform 0.1s ease;
   `;
 
-  const press = (button: HTMLButtonElement) => {
-    button.style.transform = "scale(0.9)";
-  };
-
-  const release = (button: HTMLButtonElement) => {
-    button.style.transform = "scale(1)";
-  };
-
   const proceedButton: HTMLButtonElement = document.createElement("button");
   proceedButton.textContent = "Proceed Anyway";
   proceedButton.style.cssText = `
@@ -270,10 +247,6 @@ function showDetectionAlert(confidence: number) {
     background-color: #4d5c91;
     color: #aab9ed;
   `;
-  proceedButton.addEventListener("pointerdown", () => press(proceedButton));
-  proceedButton.addEventListener("pointerup", () => release(proceedButton));
-  proceedButton.addEventListener("pointercancel", () => release(proceedButton));
-  proceedButton.addEventListener("pointerleave", () => release(proceedButton));
   proceedButton.addEventListener("click", () => {
     document.body.style.overflow = originalBodyOverflow;
     background.style.opacity = "0";
@@ -288,12 +261,29 @@ function showDetectionAlert(confidence: number) {
     background-color: #8997c4;
     color: #212b4f;
   `;
-  returnButton.addEventListener("pointerdown", () => press(returnButton));
-  returnButton.addEventListener("pointerup", () => release(returnButton));
-  returnButton.addEventListener("pointercancel", () => release(returnButton));
-  returnButton.addEventListener("pointerleave", () => release(returnButton));
   returnButton.addEventListener("click", () => window.history.back());
   buttonContainer.appendChild(returnButton);
+
+  function adjustAlertSizing() {
+    const narrow = window.innerWidth <= 850;
+    const short = window.innerHeight <= 550;
+
+    if (narrow || short) {
+      alertBox.style.width = "100%";
+      alertBox.style.height = "100%";
+      alertBox.style.borderRadius = "0";
+      if (narrow) buttonContainer.style.flexDirection = "column";
+      else buttonContainer.style.flexDirection = "row";
+    } else {
+      alertBox.style.width = "800px";
+      alertBox.style.height = "auto";
+      alertBox.style.borderRadius = "24px";
+      buttonContainer.style.flexDirection = "row";
+    }
+  }
+
+  adjustAlertSizing();
+  window.addEventListener("resize", adjustAlertSizing);
 }
 
 function waitForDOMReady(): Promise<void> {
