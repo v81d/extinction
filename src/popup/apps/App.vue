@@ -40,6 +40,13 @@
           />
           <ScanOn class="text-(--color-actionrow-button-text-green)" v-else />
         </button>
+        <button
+          class="cursor-pointer flex justify-center items-center text-center text-(--color-actionrow-button-text-primary) transition-transform active:scale-90"
+          v-tippy="'Open options'"
+          @click="browser.runtime.openOptionsPage()"
+        >
+          <Settings />
+        </button>
       </div>
     </header>
     <section
@@ -89,11 +96,12 @@ import browser from "webextension-polyfill";
 import { ref, onMounted } from "vue";
 import { setData, getData } from "@/utils/storage";
 
+import { HiOutlineRefresh as Refresh } from "vue-icons-plus/hi";
 import {
   AiFillSecurityScan as ScanOn,
   AiOutlineSecurityScan as ScanOff,
 } from "vue-icons-plus/ai";
-import { BiRefresh as Refresh } from "vue-icons-plus/bi";
+import { Io5SettingsSharp as Settings } from "vue-icons-plus/io5";
 
 import { directive as VTippy } from "vue-tippy";
 import "tippy.js/dist/tippy.css";
