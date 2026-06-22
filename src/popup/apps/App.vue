@@ -3,12 +3,14 @@
     class="flex flex-col items-center w-full h-full text-base bg-(--color-bg-primary)"
   >
     <header
-      class="flex justify-between items-stretch text-center p-3 w-full bg-(--color-panel-primary)"
+      class="overflow-x-hidden flex justify-between items-stretch text-center p-3 w-full bg-(--color-panel-primary)"
       v-if="currentDomain && currentPage"
     >
-      <div class="flex justify-start items-center">
-        <p class="whitespace-nowrap overflow-hidden text-ellipsis font-bold">
-          <span>{{ currentDomain }}</span>
+      <div class="flex-1 flex justify-start items-center min-w-0">
+        <p
+          class="whitespace-nowrap overflow-hidden text-ellipsis truncate font-bold"
+        >
+          {{ currentDomain }}
         </p>
       </div>
       <div class="flex justify-end items-center gap-3">
