@@ -3,7 +3,7 @@
     class="flex flex-col items-center w-full h-full text-base bg-(--color-bg-primary)"
   >
     <header
-      class="overflow-x-hidden flex justify-between items-stretch text-center p-3 w-full bg-(--color-panel-primary)"
+      class="overflow-x-hidden flex justify-between items-stretch text-center gap-4 p-3 w-full bg-(--color-panel-primary)"
     >
       <div class="flex-1 flex justify-start items-center min-w-0">
         <p
