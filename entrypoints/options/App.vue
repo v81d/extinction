@@ -12,22 +12,4 @@
 
 <script setup lang="ts"></script>
 
-<style scoped>
-* {
-  --color-bg-primary: #212b4f;
-  --color-text-primary: #aab9ed;
-}
-
-h1,
-h2,
-h3,
-h4,
-h5,
-h6,
-a,
-p,
-span,
-button {
-  color: var(--color-text-primary);
-}
-</style>
+<style scoped></style>
