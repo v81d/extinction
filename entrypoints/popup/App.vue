@@ -19,28 +19,27 @@
           v-tippy="'Reload score'"
           @click="loadScore"
         >
-          <Refresh />
+          <RefreshCw />
         </button>
         <button
           class="cursor-pointer flex justify-center items-center text-center text-(--color-actionrow-button-text-primary) transition-transform active:scale-90"
-          v-tippy="
-            exceptionsList.includes(currentDomain)
-              ? 'Enable scans'
-              : exceptionsList.includes(currentPage)
-                ? 'Disable scans for domain'
-                : 'Disable scans for page'
-          "
           @click="toggleDomainException"
         >
-          <ScanOff
+          <ShieldOff
             class="text-(--color-actionrow-button-text-red)"
+            v-tippy="'Scans disabled for domain'"
             v-if="exceptionsList.includes(currentDomain)"
           />
-          <ScanOff
+          <ShieldEllipsis
             class="text-(--color-actionrow-button-text-yellow)"
+            v-tippy="'Scans disabled for page'"
             v-else-if="exceptionsList.includes(currentPage)"
           />
-          <ScanOn class="text-(--color-actionrow-button-text-green)" v-else />
+          <ShieldCheck
+            class="text-(--color-actionrow-button-text-green)"
+            v-tippy="'Scans enabled'"
+            v-else
+          />
         </button>
         <button
           class="cursor-pointer flex justify-center items-center text-center text-(--color-actionrow-button-text-primary) transition-transform active:scale-90"
@@ -94,16 +93,12 @@
 </template>
 
 <script setup lang="ts">
-import browser from "webextension-polyfill";
 import { ref, onMounted } from "vue";
 import { setData, getData } from "@/utils/storage";
 
-import { HiOutlineRefresh as Refresh } from "vue-icons-plus/hi";
-import {
-  AiFillSecurityScan as ScanOn,
-  AiOutlineSecurityScan as ScanOff,
-} from "vue-icons-plus/ai";
-import { Io5SettingsSharp as Settings } from "vue-icons-plus/io5";
+import { RefreshCw } from "@lucide/vue";
+import { ShieldCheck, ShieldEllipsis, ShieldOff } from "@lucide/vue";
+import { Settings } from "@lucide/vue";
 
 import { directive as VTippy } from "vue-tippy";
 import "tippy.js/dist/tippy.css";
@@ -164,32 +159,12 @@ async function toggleDomainException() {
     // Remove page and add domain to exceptions
     exceptionsList.value = exceptionsList.value.filter((p) => p !== page);
     exceptionsList.value = [...exceptionsList.value, domain];
-  } else {
+  } else
     // Add page to exceptions
     exceptionsList.value = [...exceptionsList.value, page];
-  }
 
   await setData("exceptionsList", [...exceptionsList.value]);
 }
 </script>
 
-<style scoped>
-* {
-  --color-bg-primary: #212b4f;
-
-  --color-panel-primary: #435182;
-
-  --color-actionrow-button-text-primary: #8997c4;
-  --color-actionrow-button-text-green: #89c4a5;
-  --color-actionrow-button-text-yellow: #c4bb89;
-  --color-actionrow-button-text-red: #c49089;
-
-  --color-text-primary: #aab9ed;
-}
-
-p,
-span,
-button {
-  color: var(--color-text-primary);
-}
-</style>
+<style scoped></style>
