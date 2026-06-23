@@ -7,15 +7,10 @@ browser.runtime.onMessage.addListener(
 
     const key = message.type.replace(/^GET_|^SET_/, "");
 
-    // Get a value
-    if (message.type.startsWith("GET_")) {
-      const value = await getData(key);
-      return { value: value ?? null };
-    }
+    if (message.type.startsWith("GET_")) // get a value from store
+      return { value: (await getData(key)) ?? null };
 
-    // Set a value
-    if (message.type.startsWith("SET_")) {
-      await setData(key, message.value);
-    }
+    // set a value in store
+    if (message.type.startsWith("SET_")) await setData(key, message.value);
   },
 );
