@@ -6,9 +6,12 @@
   "permissions": ["activeTab", "scripting", "storage"],
   "{{firefox}}.browser_specific_settings": {
     "gecko": {
-      "id": "@extinction.extinction-team",
-      "strict_min_version": "58.0"
-    }
+      "id": "@extinction.v81d",
+      "data_collection_permissions": {
+        "required": ["websiteContent"]
+      }
+    },
+    "gecko_android": {}
   },
   "action": {
     "default_popup": "src/popup/index.html",
