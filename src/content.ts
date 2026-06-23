@@ -15,23 +15,23 @@ const textClassifier: TextClassifier = new TextClassifier(
 );
 
 async function scanDocument() {
-  const article = new Readability(document.cloneNode(true) as Document).parse();
-
-  /* Should return an object with the following properties (https://github.com/mozilla/readability):
+  /**
+   * Should return an object with the following properties (https://github.com/mozilla/readability):
    *
-   *   - `title`: article title
-   *   - `content`: HTML string of processed article content
-   *   - `textContent`: text content of the article, with all the HTML tags removed
-   *   - `length`: length of an article, in characters
-   *   - `excerpt`: article description, or short excerpt from the content
-   *   - `byline`: author metadata
-   *   - `dir`: content direction
-   *   - `siteName`: name of the site
-   *   - `lang`: content language
-   *   - `publishedTime`: published time
+   * - `title`: article title
+   * - `content`: HTML string of processed article content
+   * - `textContent`: text content of the article, with all the HTML tags removed
+   * - `length`: length of an article, in characters
+   * - `excerpt`: article description, or short excerpt from the content
+   * - `byline`: author metadata
+   * - `dir`: content direction
+   * - `siteName`: name of the site
+   * - `lang`: content language
+   * - `publishedTime`: published time
    *
    * For our intents, only `title` and `textContent` should be fed into the analyzer.
    */
+  const article = new Readability(document.cloneNode(true) as Document).parse();
 
   if (article) {
     const corpus: string = (
@@ -41,9 +41,9 @@ async function scanDocument() {
     ).trim();
 
     console.group(
-      "%cCorpus Scan Status\n%cfrom %cExtinction",
-      "font-size: 2em;",
-      "font-size: 1em; color: gray;",
+      "%cArticle Scan Status\n%cfrom %cExtinction",
+      "font-size: 2rem;",
+      "font-size: 1rem; color: gray;",
       "font-style: italic;",
     );
 
@@ -126,7 +126,7 @@ async function scanDocument() {
   }
 }
 
-// This function creates the warning alert and injects it onto the page
+/** Create the warning alert and injects it onto the page. */
 function showDetectionAlert(confidence: number) {
   const originalBodyOverflow: string = document.body.style.overflow;
   document.body.style.overflow = "hidden";
@@ -142,6 +142,7 @@ function showDetectionAlert(confidence: number) {
   wrapper.style.lineHeight = "1.5";
   wrapper.style.fontFamily =
     "ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'";
+
   const shadow = wrapper.attachShadow({ mode: "closed" });
   document.body.appendChild(wrapper);
 
@@ -172,13 +173,9 @@ function showDetectionAlert(confidence: number) {
   alertBox.style.borderRadius = "24px";
   alertBox.style.backgroundColor = "#212b4f";
   alertBox.style.color = "#aab9ed";
-
   background.appendChild(alertBox);
 
   const label: HTMLParagraphElement = document.createElement("p");
-  label.style.display = "flex";
-  label.style.alignItems = "center";
-  label.style.gap = "8px";
   label.style.display = "flex";
   label.style.alignItems = "center";
   label.style.gap = "8px";
@@ -187,13 +184,32 @@ function showDetectionAlert(confidence: number) {
   label.style.fontSize = "24px";
   label.style.fontWeight = "600";
   label.style.color = "#aab9ed";
-  label.innerHTML = `
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"  
-      fill="currentColor" viewBox="0 0 24 24" style="flex-shrink: 0;">
-      <path d="M11 9h2v6h-2zm0 8h2v2h-2z"></path><path d="M12.87 2.51c-.35-.63-1.4-.63-1.75 0l-9.99 18c-.17.31-.17.69.01.99.18.31.51.49.86.49h20c.35 0 .68-.19.86-.49a1 1 0 0 0 .01-.99zM3.7 20 12 5.06 20.3 20z"></path>
-    </svg>
-    Potential AI Content
-  `;
+
+  const svgns = "http://www.w3.org/2000/svg";
+  const icon = document.createElementNS(svgns, "svg");
+  icon.setAttribute("width", "24");
+  icon.setAttribute("height", "24");
+  icon.setAttribute("fill", "currentColor");
+  icon.setAttribute("viewBox", "0 0 24 24");
+  icon.style.flexShrink = "0";
+
+  const path1 = document.createElementNS(svgns, "path");
+  path1.setAttribute("d", "M11 9h2v6h-2zm0 8h2v2h-2z");
+
+  const path2 = document.createElementNS(svgns, "path");
+  path2.setAttribute(
+    "d",
+    "M12.87 2.51c-.35-.63-1.4-.63-1.75 0l-9.99 18c-.17.31-.17.69.01.99.18.31.51.49.86.49h20c.35 0 .68-.19.86-.49a1 1 0 0 0 .01-.99zM3.7 20 12 5.06 20.3 20z",
+  );
+
+  icon.appendChild(path1);
+  icon.appendChild(path2);
+  label.appendChild(icon);
+
+  const labelText: HTMLSpanElement = document.createElement("span");
+  labelText.textContent = "Potential AI Content";
+  label.appendChild(labelText);
+
   alertBox.appendChild(label);
 
   const message: HTMLDivElement = document.createElement("div");
@@ -204,19 +220,34 @@ function showDetectionAlert(confidence: number) {
   message.style.padding = "0";
   message.style.fontSize = "20px";
   message.style.color = "#aab9ed";
-  message.innerHTML = `
-    <p style="margin: 0;">
-      We are
-      <strong>${(confidence * 100).toFixed(2)}%</strong>
-      confident this page contains machine-generated content. You can choose to return or proceed anyway. Make sure to verify any important information.
-    </p>
-    <p style="margin: 0;">
-      If you believe this detection is inaccurate, you can
-      <strong>exclude</strong>
-      this page or domain from future scans in the
-      <strong>Extinction menu</strong>.
-    </p>
-  `;
+
+  const p1: HTMLParagraphElement = document.createElement("p");
+  p1.style.margin = "0";
+  p1.append("We are ");
+
+  const confidenceStrong: HTMLElement = document.createElement("strong");
+  confidenceStrong.textContent = `${(confidence * 100).toFixed(2)}%`;
+  p1.appendChild(confidenceStrong);
+  p1.append(
+    " confident this page contains machine-generated content. You can choose to return or proceed anyway. Make sure to verify any important information.",
+  );
+
+  const p2: HTMLParagraphElement = document.createElement("p");
+  p2.style.margin = "0";
+  p2.append("If you believe this detection is inaccurate, you can ");
+
+  const excludeStrong: HTMLElement = document.createElement("strong");
+  excludeStrong.textContent = "exclude";
+  p2.appendChild(excludeStrong);
+  p2.append(" this page or domain from future scans in the ");
+
+  const menuStrong: HTMLElement = document.createElement("strong");
+  menuStrong.textContent = "Extinction menu";
+  p2.appendChild(menuStrong);
+  p2.append(".");
+
+  message.appendChild(p1);
+  message.appendChild(p2);
   alertBox.appendChild(message);
 
   const buttonContainer: HTMLDivElement = document.createElement("div");
@@ -224,29 +255,28 @@ function showDetectionAlert(confidence: number) {
   buttonContainer.style.gap = "16px";
   alertBox.appendChild(buttonContainer);
 
-  const buttonStyles: string = `
-    cursor: pointer;
-    display: block;
-    flex: 1;
-    box-sizing: border-box;
-    width: 100%;
-    padding: 12px 48px;
-    font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-    font-size: 20px;
-    font-weight: 600;
-    text-align: center;
-    border: none;
-    border-radius: 24px;
-    transition: transform 0.1s ease;
-  `;
+  const applyButtonStyles = (button: HTMLButtonElement) => {
+    button.style.cursor = "pointer";
+    button.style.display = "block";
+    button.style.flex = "1";
+    button.style.boxSizing = "border-box";
+    button.style.width = "100%";
+    button.style.padding = "12px 48px";
+    button.style.fontFamily =
+      'ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"';
+    button.style.fontSize = "20px";
+    button.style.fontWeight = "600";
+    button.style.textAlign = "center";
+    button.style.border = "none";
+    button.style.borderRadius = "24px";
+    button.style.transition = "transform 0.1s ease";
+  };
 
   const proceedButton: HTMLButtonElement = document.createElement("button");
   proceedButton.textContent = "Proceed Anyway";
-  proceedButton.style.cssText = `
-    ${buttonStyles}
-    background-color: #4d5c91;
-    color: #aab9ed;
-  `;
+  applyButtonStyles(proceedButton);
+  proceedButton.style.backgroundColor = "#4d5c91";
+  proceedButton.style.color = "#aab9ed";
   proceedButton.addEventListener("click", () => {
     document.body.style.overflow = originalBodyOverflow;
     background.style.opacity = "0";
@@ -256,11 +286,9 @@ function showDetectionAlert(confidence: number) {
 
   const returnButton: HTMLButtonElement = document.createElement("button");
   returnButton.textContent = "Go Back";
-  returnButton.style.cssText = `
-    ${buttonStyles}
-    background-color: #8997c4;
-    color: #212b4f;
-  `;
+  applyButtonStyles(returnButton);
+  returnButton.style.backgroundColor = "#8997c4";
+  returnButton.style.color = "#212b4f";
   returnButton.addEventListener("click", () => window.history.back());
   buttonContainer.appendChild(returnButton);
 
