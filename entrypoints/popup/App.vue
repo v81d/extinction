@@ -4,18 +4,18 @@
   >
     <header
       class="overflow-x-hidden flex justify-between items-stretch text-center p-3 w-full bg-(--color-panel-primary)"
-      v-if="currentDomain && currentPage"
     >
       <div class="flex-1 flex justify-start items-center min-w-0">
         <p
           class="whitespace-nowrap overflow-hidden text-ellipsis truncate font-bold"
         >
-          {{ currentDomain }}
+          {{ currentDomain || "Unknown page" }}
         </p>
       </div>
       <div class="flex justify-end items-center gap-3">
         <button
           class="cursor-pointer flex justify-center items-center text-center text-(--color-actionrow-button-text-primary) transition-transform active:scale-90"
+          v-if="currentDomain && currentPage"
           v-tippy="'Reload score'"
           @click="loadScore"
         >
@@ -23,6 +23,7 @@
         </button>
         <button
           class="cursor-pointer flex justify-center items-center text-center text-(--color-actionrow-button-text-primary) transition-transform active:scale-90"
+          v-if="currentDomain && currentPage"
           @click="toggleDomainException"
         >
           <ShieldOff
