@@ -7,10 +7,9 @@ export default defineBackground(() => {
 
       const key = message.type.replace(/^GET_|^SET_/, "");
 
-      if (message.type.startsWith("GET_")) {
+      if (message.type.startsWith("GET_"))
         // get a value from store
         return { value: (await getData(key)) ?? null };
-      }
 
       // set a value in store
       if (message.type.startsWith("SET_")) await setData(key, message.value);
