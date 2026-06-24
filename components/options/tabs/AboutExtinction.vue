@@ -17,8 +17,8 @@
         issue, many people wish to escape from or completely hide such content.
       </p>
       <p>
-        We, the maintainers of Extinction, aim to promote a creative, more
-        trustworthy form of the incredible tool humans call the Internet,
+        We, the maintainers of Extinction, hope to rebuild a more creative and
+        trustworthy form of the incredible invention known as the Internet,
         liberated from the hands of slop. Extinction is made specifically for
         the purpose of discouraging the consumption of AI-produced material
         distributed online.
@@ -47,8 +47,11 @@
         Extinction does not send any data to an external endpoint; all analyses
         are done locally, meaning there is no compromise in user privacy. It
         does not use machine-learning to classify text, but rather simple
-        pattern matching with regular expressions (regexes) paired with sentence
-        variation analyses.
+        pattern matching with
+        <a href="https://en.wikipedia.org/wiki/Regular_expression"
+          >regular expressions (regexes)</a
+        >
+        paired with sentence variation analyses.
       </p>
     </section>
 
@@ -70,6 +73,25 @@
     </section>
 
     <section class="flex flex-col gap-4">
+      <h2 class="flex items-center gap-2 text-2xl font-bold">
+        We
+        <Heart class="inline-block" />
+        Open Source
+      </h2>
+      <p>
+        Open protocols are what run the Internet. Extinction is completely free
+        and open-source, with no strings attached. You can view the source code
+        on the official
+        <a href="https://github.com/v81d/extinction">GitHub repository</a>.
+      </p>
+      <p>
+        Extinction is built using the
+        <a href="https://wxt.dev">WXT framework</a>, which is also open-source
+        software. All dependencies of Extinction are also free and open-source.
+      </p>
+    </section>
+
+    <section class="flex flex-col gap-4">
       <h2 class="text-2xl font-bold">License</h2>
       <p>
         Extinction is free and open-source software distributed under the terms
@@ -82,6 +104,8 @@
   </div>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { Heart } from "@lucide/vue";
+</script>
 
 <style scoped></style>
