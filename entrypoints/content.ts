@@ -47,13 +47,6 @@ export default defineContentScript({
           article.textContent
         ).trim();
 
-        console.group(
-          "%cArticle Scan Status\n%cfrom %cExtinction",
-          "font-size: 2rem;",
-          "font-size: 1rem; color: gray;",
-          "font-style: italic;",
-        );
-
         const currentDomain: string | null = window.location.hostname;
         let exceptionsList: string[] | null = await getData("exceptionsList");
 
@@ -62,37 +55,19 @@ export default defineContentScript({
           await setData("exceptionsList", exceptionsList);
         }
 
-        if (exceptionsList.includes(currentDomain)) {
-          console.log(
-            "This domain has been whitelisted. No scan will be initiated.",
-          );
-          console.groupEnd();
-          return;
-        }
-
         if (
+          exceptionsList.includes(currentDomain) ||
           exceptionsList.includes(
             window.location.hostname + window.location.pathname,
           )
-        ) {
-          console.log(
-            "This page has been whitelisted. No scan will be initiated.",
-          );
-          console.groupEnd();
+        )
           return;
-        }
 
         if (corpus.split(/\s+/).length < 200) {
           await browser.runtime.sendMessage({
             type: `SET_CLASSIFIER_SCORE_${currentDomain}`,
             value: "ARTICLE_TOO_SHORT",
           });
-
-          console.log(
-            "The article is too short to classify accurately. No scan will be initiated.",
-          );
-          console.groupEnd();
-
           return;
         }
 
@@ -113,21 +88,6 @@ export default defineContentScript({
           type: `SET_CLASSIFIER_SCORE_${currentDomain}`,
           value: normalizedScore,
         });
-
-        const results = [
-          { Metric: "Corpus Size", Value: `${corpus.length} chars` },
-          { Metric: "Match Map", Value: analysis.matchMap },
-          { Metric: "Unscaled Alpha", Value: analysis.alpha },
-          { Metric: "Raw Pattern Score", Value: patternScore },
-          { Metric: "Raw Linguistic Score", Value: analysis.fluencyScore },
-          {
-            Metric: "Normalized Score",
-            Value: normalizedScore,
-          },
-        ];
-
-        console.table(results);
-        console.groupEnd();
 
         if (exceeded) showDetectionAlert(normalizedScore);
       }
