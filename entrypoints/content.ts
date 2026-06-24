@@ -1,6 +1,8 @@
 import { Readability } from "@mozilla/readability";
+
 import { setData, getData } from "@/utils/storage";
 import { TextClassifierAnalysis, TextClassifier } from "@/utils/textClassifier";
+import { isMatch } from "@/utils/matcher";
 
 /* The size of each text chunk used by the classifier. */
 const CHUNK_SIZE = 1024;
@@ -48,6 +50,8 @@ export default defineContentScript({
         ).trim();
 
         const currentDomain: string | null = window.location.hostname;
+        const currentPage: string | null =
+          window.location.hostname + window.location.pathname;
         let exceptionsList: string[] | null = await getData("exceptionsList");
 
         if (!exceptionsList) {
@@ -56,10 +60,8 @@ export default defineContentScript({
         }
 
         if (
-          exceptionsList.includes(currentDomain) ||
-          exceptionsList.includes(
-            window.location.hostname + window.location.pathname,
-          )
+          isMatch(currentDomain, exceptionsList) ||
+          isMatch(currentPage, exceptionsList)
         )
           return;
 
