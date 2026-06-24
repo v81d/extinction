@@ -21,47 +21,36 @@ Extinction uses a precompiled list of regular expressions, with each regex patte
 
 ### Corpus Analysis
 
-The `TextClassifier.analyze` function is used to analyze a given article using a `chunkSize`-length sliding window as well as using several functions to analyze the linguistic characteristics of the corpus.
+The `TextClassifier.analyze()` method is used to analyze a given article using a `chunkSize`-length sliding window as well as using several functions to analyze the linguistic characteristics of the corpus.
 
 - The match map is an object with keys as scores and values as the number of matches for a score.
-
 - The alpha is a parameter that is used to later scale the score for normalization.
-
 - The step, or stride, of the window is defined by `chunkSize / 1.25`, meaning that the windows/chunks **overlap by about 20%**.
   - This overlap is used to account for patterns that span across chunk boundaries.
   - In each step, the following operations occur:
-    1. Loop through the scores in the `patterns.yaml` file.
-       - The patterns are grouped by score. For example, a score of `7.5` contains seven regex patterns.
-
-    2. Under each score, loop through the regex patterns and match it with the chunk with the flags `/gimu`.
-
+    1. Loop through the rules in the `patterns.json` asset.
+    2. Under each score, loop through the regex patterns and match it with the chunk with the flags `/gimus`.
     3. Count the number of matches for each regex.
-
     4. If the number of matches is greater than 0, do the following:
        - Add `Math.log1p(numberOfMatches) * regexScore` to the alpha.
        - Add the number of matches to the score in the match map.
-
 - The windows continue to slide until the end of the corpus is reached.
-
 - The **lexical diversity** is then calculated by finding the ratio of the number of unique words (tokens) to the number of total tokens.
-
 - Next, the **burstiness** is calculated by analyzing the sentence length variance throughout the corpus.
-
-- The overall **linguistic score** is finally calculated by applying weights to the lexical diversity and burstiness to produce a combined value.
-
-- At the end, a three-item array containing the match map, the resulting alpha, and the linguistic score is returned.
+- The overall **fluency score** is finally calculated by applying weights to the lexical diversity and burstiness to produce a combined value.
+- Finally, a three-item array containing the match map, the resulting alpha, and the fluency score is returned.
 
 ### Score Calculation
 
-The `TextClassifier.calculatePatternScore` function calculates the pattern score by iterating through the entries in the match map and summing the products of the keys and values. In pseudocode:
+The `TextClassifier.calculatePatternScore()` method calculates the pattern score by iterating through the entries in the match map and summing the products of the keys and values. In pseudocode:
 
 ```
-patternScore = Σ (score * matches) for each (score, matches) in matchMap
+patternScore = Σ (score * matches) for each (score, count) in matchMap
 ```
 
 ### Normalization
 
-The `TextClassifier.normalizeScore` function adjusts the scores to account for both the **size of the corpus** (in characters) and the **pattern intensity** (`alpha`). The function follows the steps:
+The `TextClassifier.normalizeScore()` method adjusts the scores to account for both the **size of the corpus** (in characters) and the **pattern intensity** (`alpha`). The function follows the steps:
 
 1. Scale the alpha exponentially:
 
@@ -82,10 +71,10 @@ The `TextClassifier.normalizeScore` function adjusts the scores to account for b
 3. Run an exponential transform:
 
    ```
-   normalizedScore = 1 - exp(exponent)
+   normalizedScore = 1 - e^(exponent)
    ```
 
-   The weighted score into a number between 0 and 1 (ideally, if the score is not negative). This reduces the impact of outliers and makes the score more comparable.
+   The weighted score into a number between 0 and 1 (ideally, if the score is not negative). This reduces the impact of outlying points and makes the score more comparable.
 
 ## Installation
 
