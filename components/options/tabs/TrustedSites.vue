@@ -56,6 +56,13 @@
           >
             {{ exception }}
           </button>
+          <div
+            class="flex flex-col justify-center items-center gap-2 w-full h-full text-lg text-zinc-500"
+            v-if="!exceptionsList.length"
+          >
+            <SearchAlert class="w-16 h-16" />
+            <span>You did not add any exceptions.</span>
+          </div>
         </div>
 
         <!-- Remove button -->
@@ -73,6 +80,8 @@
 
 <script setup lang="ts">
 import { setData, getData } from "@/utils/storage";
+
+import { SearchAlert } from "@lucide/vue";
 
 /** The currently selected excluded domain or page. */
 const selectedExceptions = ref<string[]>([]);
