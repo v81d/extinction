@@ -116,30 +116,23 @@ export default defineContentScript({
       document.body.appendChild(wrapper);
 
       const background: HTMLDivElement = document.createElement("div");
-      background.style.position = "fixed";
+      background.style.boxSizing = "border-box";
       background.style.display = "flex";
       background.style.justifyContent = "center";
       background.style.alignItems = "center";
-      background.style.width = "100%";
-      background.style.height = "100%";
       background.style.top = "0";
       background.style.left = "0";
-      background.style.backgroundColor = "rgba(0, 0, 0, 0.4)";
-      background.style.backdropFilter = "blur(36px)";
+      background.style.padding = "36px";
+      background.style.width = "100%";
+      background.style.height = "100%";
+      background.style.backgroundColor = "#212b4f";
       shadow.appendChild(background);
 
       const alertBox: HTMLDivElement = document.createElement("div");
-      alertBox.style.position = "fixed";
       alertBox.style.display = "flex";
       alertBox.style.flexDirection = "column";
-      alertBox.style.justifyContent = "center";
       alertBox.style.gap = "24px";
-      alertBox.style.boxSizing = "border-box";
-      alertBox.style.width = "800px";
-      alertBox.style.margin = "0";
-      alertBox.style.padding = "40px";
-      alertBox.style.borderRadius = "24px";
-      alertBox.style.backgroundColor = "#212b4f";
+      alertBox.style.maxWidth = "850px";
       alertBox.style.color = "#aab9ed";
       background.appendChild(alertBox);
 
@@ -199,13 +192,13 @@ export default defineContentScript({
 
       const p1: HTMLParagraphElement = document.createElement("p");
       p1.style.margin = "0";
-      p1.append("We are ");
+      p1.append("This page received a score of ");
 
-      const confidenceStrong: HTMLElement = document.createElement("strong");
-      confidenceStrong.textContent = `${(score * 100).toFixed(2)}%`;
-      p1.appendChild(confidenceStrong);
+      const scoreStrong: HTMLElement = document.createElement("strong");
+      scoreStrong.textContent = `${(score * 100).toFixed(2)}%`;
+      p1.appendChild(scoreStrong);
       p1.append(
-        " confident this page contains machine-generated content. You can choose to return or proceed anyway. Make sure to verify any important information.",
+        " for machine-generated content. You can choose to return or proceed anyway. Make sure to verify any important information.",
       );
 
       const p2: HTMLParagraphElement = document.createElement("p");
@@ -236,8 +229,8 @@ export default defineContentScript({
         button.style.display = "block";
         button.style.flex = "1";
         button.style.boxSizing = "border-box";
-        button.style.width = "100%";
         button.style.padding = "12px 48px";
+        button.style.width = "100%";
         button.style.fontFamily =
           'ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"';
         button.style.fontSize = "20px";
@@ -268,20 +261,9 @@ export default defineContentScript({
 
       function adjustAlertSizing() {
         const narrow = window.innerWidth <= 850;
-        const short = window.innerHeight <= 550;
 
-        if (narrow || short) {
-          alertBox.style.width = "100%";
-          alertBox.style.height = "100%";
-          alertBox.style.borderRadius = "0";
-          if (narrow) buttonContainer.style.flexDirection = "column";
-          else buttonContainer.style.flexDirection = "row";
-        } else {
-          alertBox.style.width = "800px";
-          alertBox.style.height = "auto";
-          alertBox.style.borderRadius = "12px";
-          buttonContainer.style.flexDirection = "row";
-        }
+        if (narrow) buttonContainer.style.flexDirection = "column";
+        else buttonContainer.style.flexDirection = "row";
       }
 
       adjustAlertSizing();
