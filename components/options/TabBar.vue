@@ -11,14 +11,17 @@
       "
       @click="props.state.activeTab.value = i"
     >
-      {{ tab }}
+      {{ tab.name }}
     </button>
   </div>
 </template>
 
 <script setup lang="ts">
 const props = defineProps<{
-  tabs: string[];
+  tabs: {
+    name: string;
+    component?: Component;
+  }[];
   state: {
     activeTab: Ref<number>;
   };

@@ -6,3 +6,7 @@ body,
   width: 100%;
   height: 100%;
 }
+
+a {
+  @apply cursor-pointer text-sky-600 hover:text-sky-500;
+}
