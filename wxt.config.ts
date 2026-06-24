@@ -14,9 +14,13 @@ export default defineConfig({
     };
 
     if (browser === "firefox") {
+      manifest.background = {
+        scripts: ["background.js"], // fallback
+      };
+
       manifest.browser_specific_settings = {
         gecko: {
-          id: "@extinction.v81d",
+          id: "extinction@v81d",
           data_collection_permissions: {
             required: ["websiteContent"],
           },

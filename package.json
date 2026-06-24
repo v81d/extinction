@@ -1,6 +1,6 @@
 {
   "name": "extinction",
-  "description": "An ultra-lightweight AI content blocker extension.",
+  "description": "An ultra-lightweight AI content blocker browser extension powered by regex-based pattern matching and linguistic analysis.",
   "private": true,
   "version": "0.0.0",
   "type": "module",
