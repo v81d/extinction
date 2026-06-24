@@ -3,7 +3,7 @@
     <button
       v-for="(tab, i) in props.tabs"
       :key="i"
-      class="cursor-pointer px-4 py-2 text-sm text-zinc-200 rounded-lg"
+      class="cursor-pointer px-4 py-2 text-sm rounded-lg"
       :class="
         i === props.state.activeTab.value
           ? 'bg-zinc-600'

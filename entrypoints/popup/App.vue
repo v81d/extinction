@@ -29,12 +29,12 @@
           <ShieldOff
             class="text-(--color-actionrow-button-text-red)"
             v-tippy="'Scans disabled for domain'"
-            v-if="exceptionsList.includes(currentDomain)"
+            v-if="isDomainExcluded"
           />
           <ShieldEllipsis
             class="text-(--color-actionrow-button-text-yellow)"
             v-tippy="'Scans disabled for page'"
-            v-else-if="exceptionsList.includes(currentPage)"
+            v-else-if="isPageExcluded"
           />
           <ShieldCheck
             class="text-(--color-actionrow-button-text-green)"
@@ -59,8 +59,8 @@
         v-if="
           currentDomain &&
           currentPage &&
-          !exceptionsList.includes(currentDomain) &&
-          !exceptionsList.includes(currentPage) &&
+          !isDomainExcluded &&
+          !isPageExcluded &&
           score !== null
         "
       >
@@ -71,10 +71,10 @@
         <p>confident this page contains machine-generated content.</p>
       </div>
       <p v-else>
-        <span v-if="currentDomain && exceptionsList.includes(currentDomain)"
+        <span v-if="currentDomain && isDomainExcluded"
           >Scans are not enabled for this domain.</span
         >
-        <span v-else-if="currentPage && exceptionsList.includes(currentPage)"
+        <span v-else-if="currentPage && isPageExcluded"
           >Scans are not enabled for this page.</span
         >
         <span v-else-if="articleTooShort === true"
@@ -95,7 +95,11 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
+
+import picomatch from "picomatch";
+
 import { setData, getData } from "@/utils/storage";
+import { isMatch } from "@/utils/matcher";
 
 import { RefreshCw } from "@lucide/vue";
 import { ShieldCheck, ShieldEllipsis, ShieldOff } from "@lucide/vue";
@@ -110,27 +114,18 @@ const currentDomain = ref<string | null>(null);
 const currentPage = ref<string | null>(null);
 const exceptionsList = ref<string[]>([]);
 
-onMounted(async () => {
-  const tabs = await browser.tabs.query({ active: true, currentWindow: true });
-  const url: string | null = tabs[0]?.url ?? null;
+const isDomainExcluded = computed(() =>
+  currentDomain.value
+    ? isMatch(currentDomain.value, exceptionsList.value)
+    : false,
+);
 
-  if (url) {
-    const u: URL = new URL(url);
-    currentDomain.value = u.hostname;
-    currentPage.value = u.hostname + u.pathname;
-  }
-
-  exceptionsList.value = (await getData("exceptionsList")) ?? [];
-
-  await loadScore();
-});
+const isPageExcluded = computed(() =>
+  currentPage.value ? isMatch(currentPage.value, exceptionsList.value) : false,
+);
 
 async function loadScore() {
-  if (
-    !currentDomain.value ||
-    exceptionsList.value.includes(currentDomain.value)
-  )
-    score.value = null;
+  if (!currentDomain.value || isDomainExcluded.value) score.value = null;
   else {
     const response = (await browser.runtime.sendMessage({
       type: `GET_CLASSIFIER_SCORE_${currentDomain.value}`,
@@ -149,16 +144,21 @@ async function loadScore() {
 
 async function toggleDomainException() {
   if (!currentDomain.value || !currentPage.value) return;
+
   const domain: string = currentDomain.value;
   const page: string = currentPage.value;
 
-  if (exceptionsList.value.includes(domain)) {
+  if (isDomainExcluded.value) {
     // Remove domain from exceptions
-    exceptionsList.value = exceptionsList.value.filter((d) => d !== domain);
+    exceptionsList.value = exceptionsList.value.filter(
+      (pattern) => !picomatch.isMatch(domain, pattern),
+    );
     await loadScore();
-  } else if (exceptionsList.value.includes(page)) {
+  } else if (isPageExcluded.value) {
     // Remove page and add domain to exceptions
-    exceptionsList.value = exceptionsList.value.filter((p) => p !== page);
+    exceptionsList.value = exceptionsList.value.filter(
+      (pattern) => !picomatch.isMatch(page, pattern),
+    );
     exceptionsList.value = [...exceptionsList.value, domain];
   } else
     // Add page to exceptions
@@ -166,6 +166,21 @@ async function toggleDomainException() {
 
   await setData("exceptionsList", [...exceptionsList.value]);
 }
+
+onMounted(async () => {
+  const tabs = await browser.tabs.query({ active: true, currentWindow: true });
+  const url: string | null = tabs[0]?.url ?? null;
+
+  if (url) {
+    const u: URL = new URL(url);
+    currentDomain.value = u.hostname;
+    currentPage.value = u.hostname + u.pathname;
+  }
+
+  exceptionsList.value = (await getData("exceptionsList")) ?? [];
+
+  await loadScore();
+});
 </script>
 
 <style scoped></style>
