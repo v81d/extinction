@@ -3,42 +3,51 @@
     class="flex flex-col items-center w-full h-full text-base bg-(--color-bg-primary)"
   >
     <header
-      class="flex justify-between items-stretch text-center p-3 w-full bg-(--color-panel-primary)"
-      v-if="currentDomain && currentPage"
+      class="overflow-x-hidden flex justify-between items-stretch text-center gap-4 p-3 w-full bg-(--color-panel-primary)"
     >
-      <div class="flex justify-start items-center">
-        <p class="whitespace-nowrap overflow-hidden text-ellipsis font-bold">
-          <span>{{ currentDomain }}</span>
+      <div class="flex-1 flex justify-start items-center min-w-0">
+        <p
+          class="whitespace-nowrap overflow-hidden text-ellipsis truncate font-bold"
+        >
+          {{ currentDomain || "Unknown page" }}
         </p>
       </div>
       <div class="flex justify-end items-center gap-3">
         <button
           class="cursor-pointer flex justify-center items-center text-center text-(--color-actionrow-button-text-primary) transition-transform active:scale-90"
+          v-if="currentDomain && currentPage"
           v-tippy="'Reload score'"
           @click="loadScore"
         >
-          <Refresh />
+          <RefreshCw />
         </button>
         <button
           class="cursor-pointer flex justify-center items-center text-center text-(--color-actionrow-button-text-primary) transition-transform active:scale-90"
-          v-tippy="
-            exceptionsList.includes(currentDomain)
-              ? 'Enable scans'
-              : exceptionsList.includes(currentPage)
-                ? 'Disable scans for domain'
-                : 'Disable scans for page'
-          "
+          v-if="currentDomain && currentPage"
           @click="toggleDomainException"
         >
-          <ScanOff
+          <ShieldOff
             class="text-(--color-actionrow-button-text-red)"
-            v-if="exceptionsList.includes(currentDomain)"
+            v-tippy="'Scans disabled for domain'"
+            v-if="isDomainExcluded"
           />
-          <ScanOff
+          <ShieldEllipsis
             class="text-(--color-actionrow-button-text-yellow)"
-            v-else-if="exceptionsList.includes(currentPage)"
+            v-tippy="'Scans disabled for page'"
+            v-else-if="isPageExcluded"
           />
-          <ScanOn class="text-(--color-actionrow-button-text-green)" v-else />
+          <ShieldCheck
+            class="text-(--color-actionrow-button-text-green)"
+            v-tippy="'Scans enabled'"
+            v-else
+          />
+        </button>
+        <button
+          class="cursor-pointer flex justify-center items-center text-center text-(--color-actionrow-button-text-primary) transition-transform active:scale-90"
+          v-tippy="'Open options'"
+          @click="browser.runtime.openOptionsPage()"
+        >
+          <Settings />
         </button>
       </div>
     </header>
@@ -50,8 +59,8 @@
         v-if="
           currentDomain &&
           currentPage &&
-          !exceptionsList.includes(currentDomain) &&
-          !exceptionsList.includes(currentPage) &&
+          !isDomainExcluded &&
+          !isPageExcluded &&
           score !== null
         "
       >
@@ -62,10 +71,10 @@
         <p>confident this page contains machine-generated content.</p>
       </div>
       <p v-else>
-        <span v-if="currentDomain && exceptionsList.includes(currentDomain)"
+        <span v-if="currentDomain && isDomainExcluded"
           >Scans are not enabled for this domain.</span
         >
-        <span v-else-if="currentPage && exceptionsList.includes(currentPage)"
+        <span v-else-if="currentPage && isPageExcluded"
           >Scans are not enabled for this page.</span
         >
         <span v-else-if="articleTooShort === true"
@@ -85,15 +94,16 @@
 </template>
 
 <script setup lang="ts">
-import browser from "webextension-polyfill";
 import { ref, onMounted } from "vue";
-import { setData, getData } from "@/utils/storage";
 
-import {
-  AiFillSecurityScan as ScanOn,
-  AiOutlineSecurityScan as ScanOff,
-} from "vue-icons-plus/ai";
-import { BiRefresh as Refresh } from "vue-icons-plus/bi";
+import picomatch from "picomatch";
+
+import { setData, getData } from "@/utils/storage";
+import { isMatch } from "@/utils/matcher";
+
+import { RefreshCw } from "@lucide/vue";
+import { ShieldCheck, ShieldEllipsis, ShieldOff } from "@lucide/vue";
+import { Settings } from "@lucide/vue";
 
 import { directive as VTippy } from "vue-tippy";
 import "tippy.js/dist/tippy.css";
@@ -104,27 +114,18 @@ const currentDomain = ref<string | null>(null);
 const currentPage = ref<string | null>(null);
 const exceptionsList = ref<string[]>([]);
 
-onMounted(async () => {
-  const tabs = await browser.tabs.query({ active: true, currentWindow: true });
-  const url: string | null = tabs[0]?.url ?? null;
+const isDomainExcluded = computed(() =>
+  currentDomain.value
+    ? isMatch(currentDomain.value, exceptionsList.value)
+    : false,
+);
 
-  if (url) {
-    const u: URL = new URL(url);
-    currentDomain.value = u.hostname;
-    currentPage.value = u.hostname + u.pathname;
-  }
-
-  exceptionsList.value = (await getData("exceptionsList")) ?? [];
-
-  await loadScore();
-});
+const isPageExcluded = computed(() =>
+  currentPage.value ? isMatch(currentPage.value, exceptionsList.value) : false,
+);
 
 async function loadScore() {
-  if (
-    !currentDomain.value ||
-    exceptionsList.value.includes(currentDomain.value)
-  )
-    score.value = null;
+  if (!currentDomain.value || isDomainExcluded.value) score.value = null;
   else {
     const response = (await browser.runtime.sendMessage({
       type: `GET_CLASSIFIER_SCORE_${currentDomain.value}`,
@@ -143,43 +144,43 @@ async function loadScore() {
 
 async function toggleDomainException() {
   if (!currentDomain.value || !currentPage.value) return;
+
   const domain: string = currentDomain.value;
   const page: string = currentPage.value;
 
-  if (exceptionsList.value.includes(domain)) {
+  if (isDomainExcluded.value) {
     // Remove domain from exceptions
-    exceptionsList.value = exceptionsList.value.filter((d) => d !== domain);
+    exceptionsList.value = exceptionsList.value.filter(
+      (pattern) => !picomatch.isMatch(domain, pattern),
+    );
     await loadScore();
-  } else if (exceptionsList.value.includes(page)) {
+  } else if (isPageExcluded.value) {
     // Remove page and add domain to exceptions
-    exceptionsList.value = exceptionsList.value.filter((p) => p !== page);
+    exceptionsList.value = exceptionsList.value.filter(
+      (pattern) => !picomatch.isMatch(page, pattern),
+    );
     exceptionsList.value = [...exceptionsList.value, domain];
-  } else {
+  } else
     // Add page to exceptions
     exceptionsList.value = [...exceptionsList.value, page];
-  }
 
   await setData("exceptionsList", [...exceptionsList.value]);
 }
+
+onMounted(async () => {
+  const tabs = await browser.tabs.query({ active: true, currentWindow: true });
+  const url: string | null = tabs[0]?.url ?? null;
+
+  if (url) {
+    const u: URL = new URL(url);
+    currentDomain.value = u.hostname;
+    currentPage.value = u.hostname + u.pathname;
+  }
+
+  exceptionsList.value = (await getData("exceptionsList")) ?? [];
+
+  await loadScore();
+});
 </script>
 
-<style scoped>
-* {
-  --color-bg-primary: #212b4f;
-
-  --color-panel-primary: #435182;
-
-  --color-actionrow-button-text-primary: #8997c4;
-  --color-actionrow-button-text-green: #89c4a5;
-  --color-actionrow-button-text-yellow: #c4bb89;
-  --color-actionrow-button-text-red: #c49089;
-
-  --color-text-primary: #aab9ed;
-}
-
-p,
-span,
-button {
-  color: var(--color-text-primary);
-}
-</style>
+<style scoped></style>
