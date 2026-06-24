@@ -7,13 +7,13 @@ export default defineConfig({
     plugins: [tailwindcss()],
   }),
   modules: ["@wxt-dev/module-vue"],
-  manifest: (): UserManifest => {
+  manifest: ({ browser }): UserManifest => {
     const manifest: UserManifest = {
       name: "Extinction",
       permissions: ["activeTab", "scripting", "storage"],
     };
 
-    if (import.meta.env.FIREFOX)
+    if (browser === "firefox") {
       manifest.browser_specific_settings = {
         gecko: {
           id: "@extinction.v81d",
@@ -23,6 +23,7 @@ export default defineConfig({
         },
         gecko_android: {},
       };
+    }
 
     return manifest;
   },
