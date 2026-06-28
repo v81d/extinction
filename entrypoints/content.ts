@@ -204,7 +204,9 @@ export default defineContentScript({
 
       const p2: HTMLParagraphElement = document.createElement("p");
       p2.style.margin = "0";
-      p2.append("If you believe this detection is inaccurate, you can ");
+      p2.append(
+        "This detection is subject to errors. If you believe this is inaccurate, you can ",
+      );
 
       const excludeStrong: HTMLElement = document.createElement("strong");
       excludeStrong.textContent = "exclude";
