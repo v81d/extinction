@@ -1,3 +1,10 @@
+/*
+ * THIS CLASSIFICATION MECHANISM IS A HEURISTIC!
+ *
+ * This means that the technique used to flag AI-generated articles is NOT perfectly accurate! The goal is only to find a potential solution that is "good enough" for our purposes.
+ * See: https://en.wikipedia.org/wiki/Heuristic
+ */
+
 import patterns from "@/assets/patterns.json";
 
 /** A base/template for pattern interfaces. */
@@ -22,8 +29,6 @@ export type MatchMap = Map<number, number>;
 
 /** A text classifier analysis result. */
 export interface TextClassifierAnalysis {
-  /** The match dictionary mapping unique scores to the number of matches for each score. */
-  matchMap: MatchMap;
   /**
    * The accumulated pattern signal from the matches.
    * It is essentially a weighted summary of how strongly the text hits the rule set.
@@ -57,10 +62,12 @@ export class TextClassifier {
     this.wBurst = wBurst;
   }
 
-  /** Create a match map and calculate statistics for a text corpus. */
-  analyze(corpus: string): TextClassifierAnalysis {
-    const matchMap: MatchMap = new Map<number, number>();
+  /** Calculate statistics for a text corpus. */
+  analyze(corpus: string, alphaScale: number): TextClassifierAnalysis {
     let alpha: number = 0;
+
+    let diversitySum: number = 0;
+    let windowCount: number = 0;
 
     const size: number = corpus.length;
     const step: number = this.chunkSize;
@@ -74,80 +81,83 @@ export class TextClassifier {
         const count = (chunk.match(pattern.regex) ?? []).length;
         if (count > 0) {
           // saturate rule to limit the effects of repetition
-          const signal: number = 1 - Math.exp(-count);
-          alpha += signal * pattern.score;
-
-          matchMap.set(
-            pattern.score,
-            (matchMap.get(pattern.score) ?? 0) + count,
-          );
+          const signal = pattern.score * Math.min(3, Math.sqrt(count));
+          alpha += signal ** alphaScale;
         }
+      }
+
+      const chunkTokens = chunk.toLowerCase().match(/\b\w+\b/g) || [];
+
+      if (chunkTokens.length > 0) {
+        /**
+         * TTR stands for Type-Token Ratio.
+         * It is equal to the ratio of unique words to the total number of words in a corpus.
+         * A higher TTR means greater lexical diversity, which makes the text sound more natural.
+         */
+        const ttr = new Set(chunkTokens).size / chunkTokens.length;
+        diversitySum += ttr;
+        windowCount++;
       }
     }
 
-    const tokens: string[] = corpus.toLowerCase().match(/\b\w+\b/g) || [];
-    const uniqueTokens: Set<string> = new Set(tokens);
-    const lexicalDiversity = uniqueTokens.size / tokens.length;
+    const lexicalDiversity = windowCount > 0 ? diversitySum / windowCount : 0;
 
     // analyze sentence variation/burstiness as extra scan factor
     const sentences: string[] = corpus.split(/(?<=[.!?])\s+/);
-    const sentenceLengths: number[] = sentences.map(
-      (s) => s.split(/\b\w+\b/).length,
+    const sentenceLengths = sentences.map(
+      (s) => s.match(/\b\w+\b/g)?.length ?? 0,
     );
     const meanSentenceLength: number =
       sentenceLengths.reduce((a, b) => a + b, 0) / sentenceLengths.length;
     const variance: number =
       sentenceLengths.reduce((a, b) => a + (b - meanSentenceLength) ** 2, 0) /
       sentenceLengths.length; // average sentence length variance
-    const burstiness: number = Math.sqrt(variance) / meanSentenceLength;
+    const burstiness =
+      meanSentenceLength > 0
+        ? Math.sqrt(variance) / (meanSentenceLength + 1)
+        : 0;
 
-    const fluencyScore: number =
-      lexicalDiversity * this.wLex +
-      (1 - Math.min(burstiness, 2) / 2) * this.wBurst;
+    const fluencyScore =
+      (lexicalDiversity * this.wLex +
+        (1 - Math.min(burstiness, 2) / 2) * this.wBurst) /
+      (this.wLex + this.wBurst);
 
     return {
-      matchMap,
       alpha,
       fluencyScore,
     };
   }
 
-  /** Calculate the sum of all scores multiplied by their counts. */
-  calculatePatternScore(matchMap: Map<number, number>): number {
-    let total: number = 0;
-    for (const [score, count] of matchMap) total += score * count;
-    return total;
-  }
-
   /**
-   * Normalize the score between 0 and 1.
+   * Normalize the accumulated classification signals into a score between 0 and 1.
    *
-   * The mathematical model for this is:
+   * The alpha (accumulated signal) is normalized by the length of the text to reduce bias toward longer documents (since they will naturally contain more signals).
+   * The normalized alpha is then reduced by half the fluency score.
    *
-   * `1 - e^((-|alpha|^scale * patternScore^fluencyScore) / corpusLength)`,
+   * The full mathematical model for this is:
+   *
+   * `1 / (1 + e^(-(alpha / sqrt(corpusLength) - threshold - 0.5 * fluencyScore)))`,
    *
    * where:
    * - `alpha` controls how strongly the pattern matches influence the result.
-   * - `scale` increases or decreases the effect of `alpha`.
-   * - `patternScore` is the weighted total from matched rules (determined using `calculatePatternScore()`).
-   * - `fluencyScore` adjusts the impact based on writing style.
    * - `corpusLength` prevents longer texts from being over-penalized or over-rewarded.
+   * - `fluencyScore` reduces the final score for the text having more natural variation.
+   * - `adjustmentThreshold` defines how much evidence is required before the score starts rising quickly (default: 2.5).
    *
-   * A larger `alpha` makes the score move faster toward 1, a larger `patternScore` increases the final score, and a larger `corpusLength` reduces the effect of the same evidence
-   * These values should all be fine-tuned.
+   * This uses a sigmoid function.
+   * See: https://en.wikipedia.org/wiki/Sigmoid_function
    *
    * The result is intended to stay between 0 and 1, as long as the inputs are valid.
    */
   normalizeScore(
     corpusLength: number,
-    patternScore: number,
     alpha: number,
     fluencyScore: number,
-    scale: number,
+    adjustmentThreshold: number,
   ): number {
-    const scaledAlpha: number = Math.abs(alpha) ** scale;
-    return (
-      1 - Math.exp((-scaledAlpha * patternScore ** fluencyScore) / corpusLength)
-    );
+    const normalizedAlpha: number = alpha / Math.sqrt(corpusLength); // longer texts naturally accumulate more evidence, so we have to normalize the alpha
+    const adjustedAlpha: number =
+      normalizedAlpha - adjustmentThreshold - 0.5 * fluencyScore; // fluency should slightly offset the score
+    return 1 / (1 + Math.exp(-adjustedAlpha));
   }
 }
