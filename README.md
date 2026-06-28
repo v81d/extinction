@@ -1,6 +1,23 @@
-# Extinction
+<p align="center">
+  <img src="public/icon/128.png" alt="Logo" width="128" />
+</p>
 
-Extinction is an ultra-lightweight AI content blocker browser extension powered by regex-based pattern matching and linguistic analysis. It has an average precision of about 80% to 90% in correctly classifying human text, and an average precision of around 80% in detecting AI-generated text.
+<p align="center">
+  <img src="https://img.shields.io/github/languages/top/v81d/extinction?style=for-the-badge" />
+  <img src="https://img.shields.io/github/contributors/v81d/extinction?style=for-the-badge" />
+  <img src="https://img.shields.io/github/license/v81d/extinction?style=for-the-badge" />
+  <img src="https://img.shields.io/amo/dw/extinction%40v81d?style=for-the-badge" />
+</p>
+
+---
+
+**Extinction** is an ultra-lightweight AI content blocker browser extension powered by regex-based pattern matching and linguistic analysis. It has an average precision of about 80% to 90% in correctly classifying human text, and an average precision of around 80% in detecting AI-generated text.
+
+## Roadmap
+
+- [ ] Add configurable suspicion threshold
+- [ ] Create a default exception list for common/trustworthy sites
+- [ ] Add multi-language support (in the far future)?
 
 ## The Problem
 
@@ -15,6 +32,8 @@ Although, admittedly, regex-based detection mechanisms cannot be as precise as M
 This section explains Extinction's algorithm and how it classifies text as either human-written or machine-generated.
 
 _Extinction is a heuristic, so its only goal is to find a solution that is "good enough" for its purposes. Learn more about heuristics [here](https://en.wikipedia.org/wiki/Heuristic)._
+
+Extinction's default "suspicion threshold" is `0.65` (65%). Any number below this threshold will not trigger a full-page alert. (This number is not configurable yet, but we plan on adding this as a setting soon.)
 
 ### Point-Based Pattern Matching
 
@@ -70,7 +89,7 @@ _Sigmoid functions are common in machine learning algorithms, but Extinction use
 
 The resulting value of this function is returned as the normalized score.
 
-## Installation
+## Setup
 
 The following guide explains how to install Extinction as a browser extension on Chromium-based and Firefox-based browsers and Safari.
 
