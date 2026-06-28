@@ -63,7 +63,7 @@ export class TextClassifier {
     let alpha: number = 0;
 
     const size: number = corpus.length;
-    const step: number = Math.floor(this.chunkSize / 1.25); // 20% overlap (fine-tuned)
+    const step: number = this.chunkSize;
 
     // iterate over chunks
     for (let i = 0; i < size; i += step) {
@@ -73,7 +73,10 @@ export class TextClassifier {
       for (const pattern of compiledPatterns) {
         const count = (chunk.match(pattern.regex) ?? []).length;
         if (count > 0) {
-          alpha += Math.log1p(count) * pattern.score;
+          // saturate rule to limit the effects of repetition
+          const signal: number = 1 - Math.exp(-count);
+          alpha += signal * pattern.score;
+
           matchMap.set(
             pattern.score,
             (matchMap.get(pattern.score) ?? 0) + count,
