@@ -69,11 +69,8 @@ export class TextClassifier {
     let diversitySum: number = 0;
     let windowCount: number = 0;
 
-    const size: number = corpus.length;
-    const step: number = this.chunkSize;
-
     // iterate over chunks
-    for (let i = 0; i < size; i += step) {
+    for (let i = 0; i < corpus.length; i += this.chunkSize) {
       const chunk: string = corpus.slice(i, i + this.chunkSize);
 
       // add signals to match map
@@ -81,7 +78,7 @@ export class TextClassifier {
         const count = (chunk.match(pattern.regex) ?? []).length;
         if (count > 0) {
           // saturate rule to limit the effects of repetition
-          const signal = pattern.score * Math.min(3, Math.sqrt(count));
+          const signal = pattern.score * Math.min(2, Math.sqrt(count));
           alpha += signal ** alphaScale;
         }
       }
@@ -94,7 +91,7 @@ export class TextClassifier {
          * It is equal to the ratio of unique words to the total number of words in a corpus.
          * A higher TTR means greater lexical diversity, which makes the text sound more natural.
          */
-        const ttr = new Set(chunkTokens).size / chunkTokens.length;
+        const ttr: number = new Set(chunkTokens).size / chunkTokens.length;
         diversitySum += ttr;
         windowCount++;
       }

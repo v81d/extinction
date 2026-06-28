@@ -13,9 +13,9 @@ const W_BURST = 0.7;
 /** The exponent used to scale each signal added to the alpha during analysis. */
 const ALPHA_SCALE = 2;
 /** The threshold above which the score starts rising quickly during normalization. */
-const ADJUSTMENT_THRESHOLD = 0.7;
+const ADJUSTMENT_THRESHOLD = 0.8;
 /** The threshold above which the detector triggers an alert. */
-const THRESHOLD = 0.6;
+const THRESHOLD = 0.65;
 
 const textClassifier = new TextClassifier(CHUNK_SIZE, W_LEX, W_BURST);
 
