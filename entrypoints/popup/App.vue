@@ -64,11 +64,11 @@
           score !== null
         "
       >
-        <p>We are</p>
+        <p>This page scored</p>
         <p class="text-3xl font-mono font-bold">
           {{ (score * 100).toFixed(2) }}%
         </p>
-        <p>confident this page contains machine-generated content.</p>
+        <p>for containing potentially machine-generated content.</p>
       </div>
       <p v-else>
         <span v-if="currentDomain && isDomainExcluded"
