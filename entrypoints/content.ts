@@ -4,16 +4,18 @@ import { setData, getData } from "@/utils/storage";
 import { TextClassifierAnalysis, TextClassifier } from "@/utils/textClassifier";
 import { isMatch } from "@/utils/matcher";
 
-/* The size of each text chunk used by the classifier. */
+/** The size of each text chunk used by the classifier. */
 const CHUNK_SIZE = 1024;
-/* The weight applied to lexical features. */
+/** The weight applied to lexical features. */
 const W_LEX = 0.7;
-/* The weight applied to burstiness features. */
+/** The weight applied to burstiness features. */
 const W_BURST = 0.7;
-/* The threshold above which the detector triggers an alert. */
-const THRESHOLD = 0.5;
-/* The exponent used to scale the alpha during normalization. */
-const SCALE = 2.25;
+/** The exponent used to scale each signal added to the alpha during analysis. */
+const ALPHA_SCALE = 2;
+/** The threshold above which the score starts rising quickly during normalization. */
+const ADJUSTMENT_THRESHOLD = 0.8;
+/** The threshold above which the detector triggers an alert. */
+const THRESHOLD = 0.65;
 
 const textClassifier = new TextClassifier(CHUNK_SIZE, W_LEX, W_BURST);
 
@@ -73,16 +75,15 @@ export default defineContentScript({
           return;
         }
 
-        const analysis: TextClassifierAnalysis = textClassifier.analyze(corpus);
-        const patternScore: number = textClassifier.calculatePatternScore(
-          analysis.matchMap,
+        const analysis: TextClassifierAnalysis = textClassifier.analyze(
+          corpus,
+          ALPHA_SCALE,
         );
         const normalizedScore: number = textClassifier.normalizeScore(
           corpus.length,
-          patternScore,
           analysis.alpha,
           analysis.fluencyScore,
-          SCALE,
+          ADJUSTMENT_THRESHOLD,
         );
         const exceeded: boolean = normalizedScore > THRESHOLD;
 
@@ -203,7 +204,9 @@ export default defineContentScript({
 
       const p2: HTMLParagraphElement = document.createElement("p");
       p2.style.margin = "0";
-      p2.append("If you believe this detection is inaccurate, you can ");
+      p2.append(
+        "This detection is subject to errors. If you believe this is inaccurate, you can ",
+      );
 
       const excludeStrong: HTMLElement = document.createElement("strong");
       excludeStrong.textContent = "exclude";
