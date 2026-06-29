@@ -11,15 +11,21 @@
         <label class="px-4 font-bold">Suspicion threshold</label>
 
         <div
-          class="grid grid-cols-1 lg:grid-cols-[6fr_1fr_1fr] items-center gap-2"
+          class="grid grid-cols-1 lg:grid-cols-[6fr_1fr_1fr] items-start gap-2"
         >
-          <input
-            class="px-4 py-4 lg:py-2 text-sm outline-none rounded-lg bg-zinc-800"
-            type="number"
-            placeholder="Enter a number between 0 and 1"
-            @keyup.enter="setSuspicionThreshold(suspicionThresholdInput)"
-            v-model="suspicionThresholdInput"
-          />
+          <div class="flex flex-col gap-2">
+            <input
+              class="px-4 py-4 lg:py-2 text-sm outline-none rounded-lg bg-zinc-800"
+              type="number"
+              placeholder="Enter a number between 0 and 1"
+              @keyup.enter="setSuspicionThreshold(suspicionThresholdInput)"
+              v-model="suspicionThresholdInput"
+            />
+
+            <span class="px-4 text-xs text-zinc-500">
+              The threshold above which the detector triggers an alert.
+            </span>
+          </div>
 
           <button
             class="cursor-pointer px-4 py-4 lg:py-2 text-sm whitespace-nowrap rounded-lg bg-zinc-700 hover:bg-zinc-600 disabled:select-none disabled:cursor-not-allowed disabled:hover:bg-zinc-700 disabled:brightness-50"
@@ -38,10 +44,6 @@
             Default
           </button>
         </div>
-
-        <span class="px-4 text-xs text-zinc-500">
-          The threshold above which the detector triggers an alert.
-        </span>
       </div>
     </section>
   </div>
