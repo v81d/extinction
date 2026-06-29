@@ -14,8 +14,6 @@ const W_BURST = 0.7;
 const ALPHA_SCALE = 2;
 /** The threshold above which the score starts rising quickly during normalization. */
 const ADJUSTMENT_THRESHOLD = 0.8;
-/** The threshold above which the detector triggers an alert. */
-const THRESHOLD = 0.65;
 
 const textClassifier = new TextClassifier(CHUNK_SIZE, W_LEX, W_BURST);
 
@@ -25,6 +23,9 @@ export default defineContentScript({
   main(ctx) {
     /** Scan the document and, if the resulting score exceeds the threshold, show an alert. */
     const scanDocument = async () => {
+      /** The threshold above which the detector triggers an alert. */
+      const suspicionThreshold: number = await getData("suspicionThreshold");
+
       /**
        * Should return an object with the following properties (https://github.com/mozilla/readability):
        * - `title`: article title
@@ -85,7 +86,7 @@ export default defineContentScript({
           analysis.fluencyScore,
           ADJUSTMENT_THRESHOLD,
         );
-        const exceeded: boolean = normalizedScore > THRESHOLD;
+        const exceeded: boolean = normalizedScore > suspicionThreshold;
 
         await browser.runtime.sendMessage({
           type: `SET_CLASSIFIER_SCORE_${currentDomain}`,
