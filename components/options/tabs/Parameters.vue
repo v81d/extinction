@@ -17,6 +17,7 @@
             <input
               class="px-4 py-4 lg:py-2 text-sm outline-none rounded-lg bg-zinc-800"
               type="number"
+              step="0.01"
               placeholder="Enter a number between 0 and 1"
               @keyup.enter="setSuspicionThreshold(suspicionThresholdInput)"
               v-model="suspicionThresholdInput"
