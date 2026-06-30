@@ -4,8 +4,6 @@ import { setData, getData } from "@/utils/storage";
 import { TextClassifierAnalysis, TextClassifier } from "@/utils/textClassifier";
 import { isMatch } from "@/utils/matcher";
 
-/** The size of each text chunk used by the classifier. */
-const CHUNK_SIZE = 1024;
 /** The weight applied to lexical features. */
 const W_LEX = 0.7;
 /** The weight applied to burstiness features. */
@@ -15,16 +13,18 @@ const ALPHA_SCALE = 2;
 /** The threshold above which the score starts rising quickly during normalization. */
 const ADJUSTMENT_THRESHOLD = 0.8;
 
-const textClassifier = new TextClassifier(CHUNK_SIZE, W_LEX, W_BURST);
-
 export default defineContentScript({
   matches: ["<all_urls>"],
   runAt: "document_end",
   main(ctx) {
     /** Scan the document and, if the resulting score exceeds the threshold, show an alert. */
     const scanDocument = async () => {
+      /** The size of each text chunk used by the classifier. */
+      const chunkSize: number = await getData("chunkSize");
       /** The threshold above which the detector triggers an alert. */
       const suspicionThreshold: number = await getData("suspicionThreshold");
+
+      const textClassifier = new TextClassifier(chunkSize, W_LEX, W_BURST);
 
       /**
        * Should return an object with the following properties (https://github.com/mozilla/readability):
