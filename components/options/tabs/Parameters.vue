@@ -5,7 +5,7 @@
       <p>Personalize Extinction's weights/thresholds to your liking.</p>
     </section>
 
-    <InputField
+    <ParamInputField
       storage-key="chunkSize"
       label="Chunk size"
       :step="4"
@@ -17,7 +17,7 @@
       :validate="(v) => Number(v) >= 128 && Number(v) <= 16384"
     />
 
-    <InputField
+    <ParamInputField
       storage-key="suspicionThreshold"
       label="Suspicion threshold"
       :step="0.01"
@@ -33,7 +33,7 @@
 </template>
 
 <script setup lang="ts">
-import InputField from "./components/InputField.vue";
+import ParamInputField from "./components/ParamInputField.vue";
 </script>
 
 <style scoped></style>
