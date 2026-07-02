@@ -3,6 +3,11 @@ import { Readability } from "@mozilla/readability";
 import { setData, getData } from "@/utils/storage";
 import { TextClassifierAnalysis, TextClassifier } from "@/utils/textClassifier";
 import { isMatch } from "@/utils/matcher";
+import {
+  DEFAULT_CHUNK_SIZE,
+  DEFAULT_SUSPICION_THRESHOLD,
+  DEFAULT_ADJUSTMENT_OFFSET,
+} from "@/utils/defaults";
 
 /** The weight applied to lexical features. */
 const W_LEX = 0.7;
@@ -10,8 +15,6 @@ const W_LEX = 0.7;
 const W_BURST = 0.7;
 /** The exponent used to scale each signal added to the alpha during analysis. */
 const ALPHA_SCALE = 2;
-/** The threshold above which the score starts rising quickly during normalization. */
-const ADJUSTMENT_THRESHOLD = 0.8;
 
 export default defineContentScript({
   matches: ["<all_urls>"],
@@ -20,9 +23,14 @@ export default defineContentScript({
     /** Scan the document and, if the resulting score exceeds the threshold, show an alert. */
     const scanDocument = async () => {
       /** The size of each text chunk used by the classifier. */
-      const chunkSize: number = await getData("chunkSize");
+      const chunkSize: number =
+        (await getData("chunkSize")) ?? DEFAULT_CHUNK_SIZE;
       /** The threshold above which the detector triggers an alert. */
-      const suspicionThreshold: number = await getData("suspicionThreshold");
+      const suspicionThreshold: number =
+        (await getData("suspicionThreshold")) ?? DEFAULT_SUSPICION_THRESHOLD;
+      /** The threshold above which the score starts rising quickly during normalization. */
+      const adjustmentOffset: number =
+        (await getData("adjustmentOffset")) ?? DEFAULT_ADJUSTMENT_OFFSET;
 
       const textClassifier = new TextClassifier(chunkSize, W_LEX, W_BURST);
 
@@ -84,7 +92,7 @@ export default defineContentScript({
           corpus.length,
           analysis.alpha,
           analysis.fluencyScore,
-          ADJUSTMENT_THRESHOLD,
+          adjustmentOffset,
         );
         const exceeded: boolean = normalizedScore > suspicionThreshold;
 
