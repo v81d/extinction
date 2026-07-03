@@ -17,11 +17,10 @@
         issue, many people wish to escape from or completely hide such content.
       </p>
       <p>
-        We, the maintainers of Extinction, hope to rebuild a more creative and
-        trustworthy form of the incredible invention known as the Internet,
-        liberated from the hands of slop. Extinction is made specifically for
-        the purpose of discouraging the consumption of AI-produced material
-        distributed online.
+        We hope to rebuild a more creative and trustworthy form of the
+        incredible invention known as the Internet, liberated from the hands of
+        slop. Extinction is made specifically for the purpose of discouraging
+        the consumption of AI-produced material distributed online.
       </p>
     </section>
 

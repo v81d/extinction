@@ -3,21 +3,7 @@ import { Readability } from "@mozilla/readability";
 import { setData, getData } from "@/utils/storage";
 import { TextClassifierAnalysis, TextClassifier } from "@/utils/textClassifier";
 import { isMatch } from "@/utils/matcher";
-
-/** The size of each text chunk used by the classifier. */
-const CHUNK_SIZE = 1024;
-/** The weight applied to lexical features. */
-const W_LEX = 0.7;
-/** The weight applied to burstiness features. */
-const W_BURST = 0.7;
-/** The exponent used to scale each signal added to the alpha during analysis. */
-const ALPHA_SCALE = 2;
-/** The threshold above which the score starts rising quickly during normalization. */
-const ADJUSTMENT_THRESHOLD = 0.8;
-/** The threshold above which the detector triggers an alert. */
-const THRESHOLD = 0.65;
-
-const textClassifier = new TextClassifier(CHUNK_SIZE, W_LEX, W_BURST);
+import { PARAMETERS } from "@/utils/defaults";
 
 export default defineContentScript({
   matches: ["<all_urls>"],
@@ -25,6 +11,32 @@ export default defineContentScript({
   main(ctx) {
     /** Scan the document and, if the resulting score exceeds the threshold, show an alert. */
     const scanDocument = async () => {
+      /** The size of each text chunk used by the classifier. */
+      const chunkSize: number =
+        (await getData("chunkSize")) ?? PARAMETERS.CHUNK_SIZE;
+      /** The threshold above which the detector triggers an alert. */
+      const suspicionThreshold: number =
+        (await getData("suspicionThreshold")) ?? PARAMETERS.SUSPICION_THRESHOLD;
+      /** The threshold above which the score starts rising quickly during normalization. */
+      const adjustmentOffset: number =
+        (await getData("adjustmentOffset")) ?? PARAMETERS.ADJUSTMENT_OFFSET;
+      /** The exponent used to scale each signal added to the raw alpha during analysis. */
+      const signalCalibrator: number =
+        (await getData("signalCalibrator")) ?? PARAMETERS.SIGNAL_CALIBRATOR;
+      /** The weight applied to the lexical diversity measurement when calculating the fluency (naturalness) score during analysis. */
+      const lexicalDiversityWeight: number =
+        (await getData("lexicalDiversityWeight")) ??
+        PARAMETERS.LEXICAL_DIVERSITY_WEIGHT;
+      /** The weight applied to the burstiness measurement when calculating the fluency (naturalness) score during analysis. */
+      const burstinessWeight: number =
+        (await getData("burstinessWeight")) ?? PARAMETERS.BURSTINESS_WEIGHT;
+
+      const textClassifier = new TextClassifier(
+        chunkSize,
+        lexicalDiversityWeight,
+        burstinessWeight,
+      );
+
       /**
        * Should return an object with the following properties (https://github.com/mozilla/readability):
        * - `title`: article title
@@ -77,15 +89,15 @@ export default defineContentScript({
 
         const analysis: TextClassifierAnalysis = textClassifier.analyze(
           corpus,
-          ALPHA_SCALE,
+          signalCalibrator,
         );
         const normalizedScore: number = textClassifier.normalizeScore(
           corpus.length,
           analysis.alpha,
           analysis.fluencyScore,
-          ADJUSTMENT_THRESHOLD,
+          adjustmentOffset,
         );
-        const exceeded: boolean = normalizedScore > THRESHOLD;
+        const exceeded: boolean = normalizedScore > suspicionThreshold;
 
         await browser.runtime.sendMessage({
           type: `SET_CLASSIFIER_SCORE_${currentDomain}`,

@@ -16,13 +16,11 @@
 </template>
 
 <script setup lang="ts">
-import { directive as VTippy } from "vue-tippy";
-import "tippy.js/dist/tippy.css";
-
 import TabBar from "@/components/options/TabBar.vue";
 
 import NotFound from "@/components/options/tabs/NotFound.vue";
 import TrustedSites from "@/components/options/tabs/TrustedSites.vue";
+import Parameters from "@/components/options/tabs/Parameters.vue";
 import AboutExtinction from "@/components/options/tabs/AboutExtinction.vue";
 
 /** The array of tabs to show in the header. */
@@ -33,6 +31,10 @@ const TABS: {
   {
     name: "Trusted Sites",
     component: TrustedSites,
+  },
+  {
+    name: "Parameters",
+    component: Parameters,
   },
   {
     name: "About Extinction",

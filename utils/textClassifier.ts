@@ -63,7 +63,7 @@ export class TextClassifier {
   }
 
   /** Calculate statistics for a text corpus. */
-  analyze(corpus: string, alphaScale: number): TextClassifierAnalysis {
+  analyze(corpus: string, signalCalibrator: number): TextClassifierAnalysis {
     let alpha: number = 0;
 
     let diversitySum: number = 0;
@@ -78,8 +78,10 @@ export class TextClassifier {
         const count = (chunk.match(pattern.regex) ?? []).length;
         if (count > 0) {
           // saturate rule to limit the effects of repetition
-          const signal = pattern.score * Math.min(2, Math.sqrt(count));
-          alpha += signal ** alphaScale;
+          const signal: number = pattern.score * Math.min(2, Math.sqrt(count));
+          const calibratedSignal: number =
+            Math.sign(signal) * Math.abs(signal) ** signalCalibrator;
+          alpha += calibratedSignal;
         }
       }
 
@@ -109,15 +111,18 @@ export class TextClassifier {
     const variance: number =
       sentenceLengths.reduce((a, b) => a + (b - meanSentenceLength) ** 2, 0) /
       sentenceLengths.length; // average sentence length variance
-    const burstiness =
+    const burstiness: number =
       meanSentenceLength > 0
         ? Math.sqrt(variance) / (meanSentenceLength + 1)
         : 0;
 
-    const fluencyScore =
-      (lexicalDiversity * this.wLex +
-        (1 - Math.min(burstiness, 2) / 2) * this.wBurst) /
-      (this.wLex + this.wBurst);
+    const weightSum: number = this.wLex + this.wBurst;
+    const fluencyScore: number =
+      weightSum === 0
+        ? 0
+        : (lexicalDiversity * this.wLex +
+            (1 - Math.min(burstiness, 2) / 2) * this.wBurst) /
+          weightSum;
 
     return {
       alpha,

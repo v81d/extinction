@@ -6,7 +6,7 @@
     </section>
 
     <section>
-      <div class="grid grid-cols-1 lg:grid-cols-[3fr_1fr] items-start gap-6">
+      <div class="grid grid-cols-1 lg:grid-cols-[3fr_1fr] items-start gap-2">
         <!-- Input -->
         <div class="flex flex-col gap-2">
           <input
