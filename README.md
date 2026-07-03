@@ -15,7 +15,7 @@
 
 ## Roadmap
 
-- [ ] Add configurable suspicion threshold
+- [x] Add configurable suspicion threshold
 - [ ] Create a default exception list for common/trustworthy sites
 - [ ] Add multi-language support (in the far future)?
 
