@@ -63,7 +63,7 @@ export class TextClassifier {
   }
 
   /** Calculate statistics for a text corpus. */
-  analyze(corpus: string, alphaScale: number): TextClassifierAnalysis {
+  analyze(corpus: string, signalCalibrator: number): TextClassifierAnalysis {
     let alpha: number = 0;
 
     let diversitySum: number = 0;
@@ -79,7 +79,7 @@ export class TextClassifier {
         if (count > 0) {
           // saturate rule to limit the effects of repetition
           const signal = pattern.score * Math.min(2, Math.sqrt(count));
-          alpha += signal ** alphaScale;
+          alpha += signal ** signalCalibrator;
         }
       }
 

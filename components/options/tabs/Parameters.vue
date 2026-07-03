@@ -60,6 +60,17 @@
         description="The horizontal offset of the logistic function used to normalize the raw score. In other words, the threshold above which the score rises begins rising significantly along the sigmoid. A smaller offset increases sensitivity toward AI signals, while a greater offset reduces this. For example, if the offset and normalized alpha are both 0, the resulting score will be 50% (neutral). Make sure to <a href='https://www.desmos.com/calculator/cxvnwttyfv'>test your values</a> before confirming."
         :validate="(v) => Number(v) >= -5 && Number(v) <= 5"
       />
+      <ParamInputField
+        storage-key="signalCalibrator"
+        label="Signal Calibrator"
+        :step="0.1"
+        :min="1"
+        :max="10"
+        placeholder="Enter a number between 1 and 10"
+        :default-value="PARAMETERS.SIGNAL_CALIBRATOR"
+        description="The exponent used to scale each signal score added to the raw alpha during analysis (before normalization). Increasing this value causes fractional signals to decrease and larger signals (greater than 1) to increase."
+        :validate="(v) => Number(v) >= 1 && Number(v) <= 10"
+      />
     </section>
   </div>
 </template>

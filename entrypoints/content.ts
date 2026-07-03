@@ -9,8 +9,6 @@ import { PARAMETERS } from "@/utils/defaults";
 const W_LEX = 0.7;
 /** The weight applied to burstiness features. */
 const W_BURST = 0.7;
-/** The exponent used to scale each signal added to the alpha during analysis. */
-const ALPHA_SCALE = 2;
 
 export default defineContentScript({
   matches: ["<all_urls>"],
@@ -27,6 +25,9 @@ export default defineContentScript({
       /** The threshold above which the score starts rising quickly during normalization. */
       const adjustmentOffset: number =
         (await getData("adjustmentOffset")) ?? PARAMETERS.ADJUSTMENT_OFFSET;
+      /** The exponent used to scale each signal added to the raw alpha during analysis. */
+      const signalCalibrator: number =
+        (await getData("signalCalibrator")) ?? PARAMETERS.SIGNAL_CALIBRATOR;
 
       const textClassifier = new TextClassifier(chunkSize, W_LEX, W_BURST);
 
@@ -82,7 +83,7 @@ export default defineContentScript({
 
         const analysis: TextClassifierAnalysis = textClassifier.analyze(
           corpus,
-          ALPHA_SCALE,
+          signalCalibrator,
         );
         const normalizedScore: number = textClassifier.normalizeScore(
           corpus.length,
