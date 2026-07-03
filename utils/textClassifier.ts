@@ -78,8 +78,10 @@ export class TextClassifier {
         const count = (chunk.match(pattern.regex) ?? []).length;
         if (count > 0) {
           // saturate rule to limit the effects of repetition
-          const signal = pattern.score * Math.min(2, Math.sqrt(count));
-          alpha += signal ** signalCalibrator;
+          const signal: number = pattern.score * Math.min(2, Math.sqrt(count));
+          const calibratedSignal: number =
+            Math.sign(signal) * Math.abs(signal) ** signalCalibrator;
+          alpha += calibratedSignal;
         }
       }
 
