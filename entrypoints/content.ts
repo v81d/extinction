@@ -3,11 +3,7 @@ import { Readability } from "@mozilla/readability";
 import { setData, getData } from "@/utils/storage";
 import { TextClassifierAnalysis, TextClassifier } from "@/utils/textClassifier";
 import { isMatch } from "@/utils/matcher";
-import {
-  DEFAULT_CHUNK_SIZE,
-  DEFAULT_SUSPICION_THRESHOLD,
-  DEFAULT_ADJUSTMENT_OFFSET,
-} from "@/utils/defaults";
+import { PARAMETERS } from "@/utils/defaults";
 
 /** The weight applied to lexical features. */
 const W_LEX = 0.7;
@@ -24,13 +20,13 @@ export default defineContentScript({
     const scanDocument = async () => {
       /** The size of each text chunk used by the classifier. */
       const chunkSize: number =
-        (await getData("chunkSize")) ?? DEFAULT_CHUNK_SIZE;
+        (await getData("chunkSize")) ?? PARAMETERS.CHUNK_SIZE;
       /** The threshold above which the detector triggers an alert. */
       const suspicionThreshold: number =
-        (await getData("suspicionThreshold")) ?? DEFAULT_SUSPICION_THRESHOLD;
+        (await getData("suspicionThreshold")) ?? PARAMETERS.SUSPICION_THRESHOLD;
       /** The threshold above which the score starts rising quickly during normalization. */
       const adjustmentOffset: number =
-        (await getData("adjustmentOffset")) ?? DEFAULT_ADJUSTMENT_OFFSET;
+        (await getData("adjustmentOffset")) ?? PARAMETERS.ADJUSTMENT_OFFSET;
 
       const textClassifier = new TextClassifier(chunkSize, W_LEX, W_BURST);
 

@@ -24,7 +24,7 @@
         :min="128"
         :max="16384"
         placeholder="Enter a number between 128 and 16384"
-        :default-value="DEFAULT_CHUNK_SIZE"
+        :default-value="PARAMETERS.SUSPICION_THRESHOLD"
         description="Controls how many characters are scanned at a time. Smaller chunks make repeated patterns count more, while larger chunks treat the text more as a whole."
         :validate="(v) => Number(v) >= 128 && Number(v) <= 16384"
       />
@@ -35,7 +35,7 @@
         :min="0"
         :max="1"
         placeholder="Enter a number between 0 and 1"
-        :default-value="DEFAULT_SUSPICION_THRESHOLD"
+        :default-value="PARAMETERS.SUSPICION_THRESHOLD"
         description="The threshold above which the detector triggers an alert. The most stable range is between 0.5 and 0.75.
       "
         :validate="(v) => Number(v) >= 0 && Number(v) <= 1"
@@ -56,7 +56,7 @@
         :min="-5"
         :max="5"
         placeholder="Enter a number between -5 and 5"
-        :default-value="DEFAULT_ADJUSTMENT_OFFSET"
+        :default-value="PARAMETERS.ADJUSTMENT_OFFSET"
         description="The horizontal offset of the logistic function used to normalize the raw score. In other words, the threshold above which the score rises begins rising significantly along the sigmoid. A smaller offset increases sensitivity toward AI signals, while a greater offset reduces this. For example, if the offset and normalized alpha are both 0, the resulting score will be 50% (neutral). Make sure to <a href='https://www.desmos.com/calculator/cxvnwttyfv'>test your values</a> before confirming."
         :validate="(v) => Number(v) >= -5 && Number(v) <= 5"
       />
@@ -65,11 +65,7 @@
 </template>
 
 <script setup lang="ts">
-import {
-  DEFAULT_CHUNK_SIZE,
-  DEFAULT_SUSPICION_THRESHOLD,
-  DEFAULT_ADJUSTMENT_OFFSET,
-} from "@/utils/defaults";
+import { PARAMETERS } from "@/utils/defaults";
 
 import ParamInputField from "./components/ParamInputField.vue";
 </script>
