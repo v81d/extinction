@@ -111,13 +111,13 @@ export class TextClassifier {
     const variance: number =
       sentenceLengths.reduce((a, b) => a + (b - meanSentenceLength) ** 2, 0) /
       sentenceLengths.length; // average sentence length variance
-    const burstiness =
+    const burstiness: number =
       meanSentenceLength > 0
         ? Math.sqrt(variance) / (meanSentenceLength + 1)
         : 0;
 
-    const weightSum = this.wLex + this.wBurst;
-    const fluencyScore =
+    const weightSum: number = this.wLex + this.wBurst;
+    const fluencyScore: number =
       weightSum === 0
         ? 0
         : (lexicalDiversity * this.wLex +
