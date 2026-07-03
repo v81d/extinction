@@ -53,12 +53,12 @@
         storage-key="adjustmentOffset"
         label="Adjustment Offset"
         :step="0.05"
-        :min="-5"
-        :max="5"
-        placeholder="Enter a number between -5 and 5"
+        :min="-10"
+        :max="10"
+        placeholder="Enter a number between -10 and 10"
         :default-value="PARAMETERS.ADJUSTMENT_OFFSET"
         description="The horizontal offset of the logistic function used to normalize the raw score. In other words, the threshold above which the score rises begins rising significantly along the sigmoid. A smaller offset increases sensitivity toward AI signals, while a greater offset reduces this. For example, if the offset and normalized alpha are both 0, the resulting score will be 50% (neutral). Make sure to <a href='https://www.desmos.com/calculator/cxvnwttyfv'>test your values</a> before confirming."
-        :validate="(v) => Number(v) >= -5 && Number(v) <= 5"
+        :validate="(v) => Number(v) >= -10 && Number(v) <= 10"
       />
       <ParamInputField
         storage-key="signalCalibrator"
@@ -70,6 +70,28 @@
         :default-value="PARAMETERS.SIGNAL_CALIBRATOR"
         description="The exponent used to scale each signal score added to the raw alpha during analysis (before normalization). Increasing this value causes fractional signals to decrease and larger signals (greater than 1) to increase."
         :validate="(v) => Number(v) >= 1 && Number(v) <= 10"
+      />
+      <ParamInputField
+        storage-key="lexicalDiversityWeight"
+        label="Lexical Diversity Weight"
+        :step="0.1"
+        :min="0"
+        :max="10"
+        placeholder="Enter a number between 0 and 10"
+        :default-value="PARAMETERS.LEXICAL_DIVERSITY_WEIGHT"
+        description="The weight applied to the lexical diversity measurement when calculating the fluency (naturalness) score during analysis."
+        :validate="(v) => Number(v) >= 0 && Number(v) <= 10"
+      />
+      <ParamInputField
+        storage-key="burstinessWeight"
+        label="Burstiness Weight"
+        :step="0.1"
+        :min="0"
+        :max="10"
+        placeholder="Enter a number between 0 and 10"
+        :default-value="PARAMETERS.BURSTINESS_WEIGHT"
+        description="The weight applied to the burstiness measurement when calculating the fluency (naturalness) score during analysis."
+        :validate="(v) => Number(v) >= 0 && Number(v) <= 10"
       />
     </section>
   </div>

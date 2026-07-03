@@ -116,10 +116,13 @@ export class TextClassifier {
         ? Math.sqrt(variance) / (meanSentenceLength + 1)
         : 0;
 
+    const weightSum = this.wLex + this.wBurst;
     const fluencyScore =
-      (lexicalDiversity * this.wLex +
-        (1 - Math.min(burstiness, 2) / 2) * this.wBurst) /
-      (this.wLex + this.wBurst);
+      weightSum === 0
+        ? 0
+        : (lexicalDiversity * this.wLex +
+            (1 - Math.min(burstiness, 2) / 2) * this.wBurst) /
+          weightSum;
 
     return {
       alpha,

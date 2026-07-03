@@ -5,11 +5,6 @@ import { TextClassifierAnalysis, TextClassifier } from "@/utils/textClassifier";
 import { isMatch } from "@/utils/matcher";
 import { PARAMETERS } from "@/utils/defaults";
 
-/** The weight applied to lexical features. */
-const W_LEX = 0.7;
-/** The weight applied to burstiness features. */
-const W_BURST = 0.7;
-
 export default defineContentScript({
   matches: ["<all_urls>"],
   runAt: "document_end",
@@ -28,8 +23,19 @@ export default defineContentScript({
       /** The exponent used to scale each signal added to the raw alpha during analysis. */
       const signalCalibrator: number =
         (await getData("signalCalibrator")) ?? PARAMETERS.SIGNAL_CALIBRATOR;
+      /** The weight applied to the lexical diversity measurement when calculating the fluency (naturalness) score during analysis. */
+      const lexicalDiversityWeight: number =
+        (await getData("lexicalDiversityWeight")) ??
+        PARAMETERS.LEXICAL_DIVERSITY_WEIGHT;
+      /** The weight applied to the burstiness measurement when calculating the fluency (naturalness) score during analysis. */
+      const burstinessWeight: number =
+        (await getData("burstinessWeight")) ?? PARAMETERS.BURSTINESS_WEIGHT;
 
-      const textClassifier = new TextClassifier(chunkSize, W_LEX, W_BURST);
+      const textClassifier = new TextClassifier(
+        chunkSize,
+        lexicalDiversityWeight,
+        burstinessWeight,
+      );
 
       /**
        * Should return an object with the following properties (https://github.com/mozilla/readability):
