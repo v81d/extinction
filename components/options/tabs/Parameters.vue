@@ -24,7 +24,7 @@
         :min="128"
         :max="16384"
         placeholder="Enter a number between 128 and 16384"
-        :default-value="PARAMETERS.SUSPICION_THRESHOLD"
+        :default-value="PARAMETERS.CHUNK_SIZE"
         description="Controls how many characters are scanned at a time. Smaller chunks make repeated patterns count more, while larger chunks treat the text more as a whole."
         :validate="(v) => Number(v) >= 128 && Number(v) <= 16384"
       />
